@@ -10,7 +10,7 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: (
-      <div className="ml-3 mt-2">
+      <div className="mx-3 mt-2">
         Not created webpage for home as I've only made{" "}
         <Link to="bb10-text-transition" className="text-blue-700">
           BB OS 10 text transition
