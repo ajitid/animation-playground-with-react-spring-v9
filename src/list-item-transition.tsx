@@ -40,19 +40,31 @@ export const ListItemTransition = () => {
   const [itemToElMap] = useState(() => new WeakMap<Item, HTMLDivElement | null>());
 
   const transition = useTransition(items, {
-    from: { opacity: 0.3, height: 0 },
+    from: { opacity: 0.2, scale: 0.8, height: 0 },
     /*
       Taken from the comment https://github.com/pmndrs/react-spring/issues/521#issuecomment-467644794
       in which Paul Henschel mentions this https://github.com/pmndrs/react-spring-examples/blob/HEAD@%7B2019-02-26T22:40:56Z%7D/demos/hooks/notification-hub/index.js
+      New version: https://codesandbox.io/s/spring-notification-hub-md4cj?file=/src/App.tsx
       For how async update works, see Alec Larson's https://youtu.be/5QCYBiANRYs?t=987 and https://aleclarson.github.io/react-spring/v9/
     */
     enter: (item) => async (set) => {
+      let height: number | string = "auto";
+      const el = itemToElMap.get(item);
+      if (el) {
+        const style = getComputedStyle(el);
+        height =
+          parseFloat(style.height.replace("px", "")) +
+          parseFloat(style.marginTop.replace("px", "")) +
+          parseFloat(style.marginBottom.replace("px", ""));
+      }
+
       await set({
         opacity: 1,
-        height: itemToElMap.get(item)?.getBoundingClientRect().height ?? "auto",
+        scale: 1,
+        height: height,
       });
     },
-    leave: { opacity: 0.3, height: 0 },
+    leave: { opacity: 0.2, scale: 0.8, height: 0 },
     keys: (v) => v.id,
     config: {
       frequency: slowdown ? 2 : undefined,
@@ -63,42 +75,47 @@ export const ListItemTransition = () => {
     <DefaultLayout>
       <div className="px-3 py-2">
         <div>
-          <button className="mr-2 px-3 py-1 bg-emerald-700 text-white rounded" onClick={addItem}>
-            Add
+          <button className="mr-3 px-3 py-1 bg-emerald-700 text-white rounded" onClick={addItem}>
+            Add a message
           </button>
-          <label>
+          <label className="mr-3">
             <input type="checkbox" checked={slowdown} onChange={() => setSlowdown((v) => !v)} />{" "}
             Slow down
           </label>
+          <span className="text-gray-700">Click on a message to remove</span>
         </div>
-        {transition((style, item, _, idx) => (
-          /*
-              This is written in the same vein as src/bb10-text-transition.tsx:
-              measure with inner div and apply style on outer div. 
+        <div className="mt-2">
+          {transition((style, item, _, idx) => (
+            /*
+                This is written in the same vein as
+                src/bb10-text-transition.tsx: measure with inner div and apply
+                style on outer div.
 
-              Using padding (`py-0.5`) instead of margin isn't unique to
-              react-spring though, here's Framer Motion:
-              https://github.com/framer/motion/issues/368
-              https://youtu.be/QTptUftCIdA?t=overfl143
-
-              FLIP, tricks like the above, makes UI animation on the web feel
-              hacky because they are.   
-            */
-          <a.div style={style} className="overflow-hidden">
-            <div
-              ref={(el) => {
-                itemToElMap.set(item, el);
-              }}
-              className="py-0.5"
-            >
-              <div className="bg-slate-200">
-                <button className="p-2 block w-full text-left" onClick={() => removeItem(idx)}>
+                Using padding instead of margin and/or pulling styles into a
+                direct children isn't unique to react-spring though, here's
+                Framer Motion: 
+                https://github.com/framer/motion/issues/368
+                https://youtu.be/QTptUftCIdA?t=overfl143 
+                FLIP, tricks like the above, makes UI animation on the web feel
+                hacky and they are.
+              */
+            <a.div style={style} className="overflow-hidden origin-left">
+              <div
+                ref={(el) => {
+                  itemToElMap.set(item, el);
+                }}
+                className="my-0.5 inline-block"
+              >
+                <button
+                  className="bg-slate-200 rounded-full py-2 px-4 inline-block w-full text-left"
+                  onClick={() => removeItem(idx)}
+                >
                   {item.text}
                 </button>
               </div>
-            </div>
-          </a.div>
-        ))}
+            </a.div>
+          ))}
+        </div>
       </div>
     </DefaultLayout>
   );
