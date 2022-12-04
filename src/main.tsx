@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider, Link } from "react-router-dom";
 import "./main.css";
 
 import { BB10TextTransition } from "./bb10-text-transition";
+import { ListItemTransition } from "./list-item-transition";
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
   {
     path: "bb10-text-transition",
     element: <BB10TextTransition />,
+  },
+  {
+    path: "list-items",
+    element: <ListItemTransition />,
   },
 ]);
 
