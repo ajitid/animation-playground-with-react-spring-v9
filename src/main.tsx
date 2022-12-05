@@ -4,8 +4,8 @@ import { createBrowserRouter, RouterProvider, Link } from "react-router-dom";
 
 import "./main.css";
 
-import { BB10TextTransition } from "./bb10-text-transition";
-import { ListItemTransition } from "./list-item-transition";
+import { BB10TextTransition } from "./pages/bb10-text-transition";
+import { ListItemTransition } from "./pages/list-item-transition";
 
 const router = createBrowserRouter([
   {

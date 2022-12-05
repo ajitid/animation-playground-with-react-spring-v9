@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { a, SpringValue, useTransition } from "@react-spring/web";
+import { a, useTransition } from "@react-spring/web";
 import { nanoid } from "nanoid";
 
-import { DefaultLayout } from "./default-layout";
+import { DefaultLayout } from "../default-layout";
 
 type Item = { id: string; text: string };
 

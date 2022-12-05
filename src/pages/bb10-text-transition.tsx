@@ -7,7 +7,7 @@ import cn from "clsx";
 import useMeasure from "react-use-measure";
 import { useSpring, a, SpringConfig } from "@react-spring/web";
 
-import { DefaultLayout } from "./default-layout";
+import { DefaultLayout } from "../default-layout";
 import css from "./bb10-text-transition.module.css";
 
 const texts = [
