@@ -46,7 +46,9 @@ const icons = [
 ];
 
 const SCREEN_WIDTH = 480;
+const screenWidthClassname = `w-[480px]`;
 const SCRUB_WIDTH = 94;
+const scrubWidthClassname = `w-[94px]`;
 
 export const HtcHd2HomeDock = () => {
   const [isDragging, setIsDragging] = useState(false);
@@ -118,7 +120,7 @@ export const HtcHd2HomeDock = () => {
     <DefaultLayout>
       <div className="min-h-screen bg-slate-700 pb-24 grid place-items-center">
         <div
-          className={`h-[480px] w-[${SCREEN_WIDTH}px] bg-slate-500 rounded relative overflow-hidden`}
+          className={`h-[480px] ${screenWidthClassname} bg-slate-500 rounded relative overflow-hidden`}
           ref={deviceRef}
         >
           <div data-id="screen-behind-dock" className="h-full p-4 text-slate-100 text-lg">
@@ -145,7 +147,7 @@ export const HtcHd2HomeDock = () => {
             {...bindDrag()}
             style={{ x }}
             data-id="dock--scrub"
-            className={`bottom-0 absolute bg-slate-100 h-24 w-[${SCRUB_WIDTH}px] touch-none grid place-items-center rounded-t ${
+            className={`bottom-0 absolute bg-slate-100 h-24 ${scrubWidthClassname} touch-none grid place-items-center rounded-t ${
               isDragging ? "cursor-grabbing" : "cursor-grab"
             }`}
           >
