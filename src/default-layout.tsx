@@ -1,4 +1,4 @@
-import { FC, WC } from "./shared/types";
+import { FC, WC } from "@/shared/types";
 
 export const DefaultLayout: FC<WC> = ({ children }) => {
   // font-sans is now applied by tailwind automatically

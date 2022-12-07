@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider, Link } from "react-router-dom";
 import "./main.css";
 
 import { BB10TextTransition } from "./pages/bb10-text-transition";
+import { HtcHd2HomeDock } from "./pages/htc-hd2-home-dock";
 import { ListItemTransition } from "./pages/list-item-transition";
 
 const router = createBrowserRouter([
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
   {
     path: "list-items",
     element: <ListItemTransition />,
+  },
+  {
+    path: "htc-hd2-home-dock",
+    element: <HtcHd2HomeDock />,
   },
 ]);
 
