@@ -56,13 +56,19 @@ export const HtcHd2HomeDock = () => {
   const deviceRef = useRef<HTMLDivElement>(null);
   const [dockItemsRef, { width: dockWidth }] = useMeasure();
 
-  const [{ x }, scrubAnim] = useSpring(() => ({
-    x: 0,
-    config: {
-      frequency: 0,
-      damping: 1,
-    },
-  }));
+  const [{ x }, scrubAnim] = useSpring(
+    () => ({
+      x: 0,
+      config: {
+        frequency: 0,
+        damping: 1,
+      },
+      onChange(v) {
+        setSelectedItem(getSnappedPoint(dockWidth, v.value.x).i);
+      },
+    }),
+    [dockWidth]
+  );
   const bindDrag = useDrag(
     ({ offset: [ox], first, down, last }) => {
       if (first) {
@@ -77,17 +83,12 @@ export const HtcHd2HomeDock = () => {
         });
       }
 
-      if (down) {
-        scrubAnim.start({ x: ox });
-        const { i } = getSnappedPoint(dockWidth, ox);
-        setSelectedItem(i);
-      }
+      if (down) scrubAnim.start({ x: ox });
 
       if (last) {
         setIsDragging(false);
-        const { x, i } = getSnappedPoint(dockWidth, ox);
-        scrubAnim.start({ x, config: { damping: 1, frequency: 0.2 } });
-        setSelectedItem(i);
+        const { x } = getSnappedPoint(dockWidth, ox);
+        scrubAnim.start({ x, config: { damping: 1, frequency: 0.13 } });
       }
     },
     {
@@ -102,6 +103,16 @@ export const HtcHd2HomeDock = () => {
     dockWidth > SCREEN_WIDTH
       ? x.to([0, SCREEN_WIDTH - SCRUB_WIDTH], [0, dockWidth - SCREEN_WIDTH]).to((v) => v * -1)
       : 0;
+
+  const moveTo = (i: number) => {
+    scrubAnim.start({
+      x:
+        icons.length <= 1
+          ? 0
+          : ((Math.min(dockWidth, SCREEN_WIDTH) - SCRUB_WIDTH) / (icons.length - 1)) * i,
+      config: { damping: 1, frequency: 0.3 },
+    });
+  };
 
   return (
     <DefaultLayout>
@@ -125,7 +136,7 @@ export const HtcHd2HomeDock = () => {
             className="whitespace-nowrap bg-slate-300 bottom-0 absolute"
           >
             {icons.map((Icon, idx) => (
-              <div className="py-2 px-3 inline-block" key={idx}>
+              <div onPointerDown={() => moveTo(idx)} className="py-2 px-3 inline-block" key={idx}>
                 <Icon className="w-16 inline-block text-slate-700" />
               </div>
             ))}
