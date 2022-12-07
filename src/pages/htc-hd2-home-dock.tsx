@@ -1,6 +1,6 @@
 // Inspiration: HTC HD2's phone dock https://youtu.be/HvKCMYVuvRM?t=277
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import useMeasure from "react-use-measure";
 import { useSpring, a } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
@@ -46,9 +46,13 @@ const icons = [
 ];
 
 const SCREEN_WIDTH = 480;
-const SCRUB_WIDTH = 86;
+const SCRUB_WIDTH = 94;
 
 export const HtcHd2HomeDock = () => {
+  const [isDragging, setIsDragging] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(0);
+  const SelectedIcon = icons[selectedItem];
+
   const deviceRef = useRef<HTMLDivElement>(null);
   const [dockItemsRef, { width: dockWidth }] = useMeasure();
 
@@ -61,8 +65,9 @@ export const HtcHd2HomeDock = () => {
   }));
   const bindDrag = useDrag(
     ({ offset: [ox], first, down, last }) => {
-      // we animate on `first` cond. only to reset spring's `config` because it would have been modified on `last` cond.
-      if (first)
+      if (first) {
+        setIsDragging(true);
+        // we animate on `first` cond. only to reset spring's `config` because it would have been modified on `last` cond.
         scrubAnim.start({
           x: ox,
           config: {
@@ -70,22 +75,19 @@ export const HtcHd2HomeDock = () => {
             damping: 1,
           },
         });
+      }
 
-      if (down) scrubAnim.start({ x: ox });
+      if (down) {
+        scrubAnim.start({ x: ox });
+        const { i } = getSnappedPoint(dockWidth, ox);
+        setSelectedItem(i);
+      }
 
       if (last) {
-        if (icons.length <= 1) {
-          scrubAnim.start({ x: 0, config: { damping: 1, frequency: 0.2 } });
-        } else {
-          const snappingPoints = Array(icons.length);
-          const segmentLength =
-            (Math.min(SCREEN_WIDTH, dockWidth) - SCRUB_WIDTH) / (snappingPoints.length - 1);
-          for (let i = 0; i < snappingPoints.length; i++) {
-            snappingPoints[i] = i * segmentLength;
-          }
-          const x = snap(snappingPoints)(ox)!;
-          scrubAnim.start({ x, config: { damping: 1, frequency: 0.2 } });
-        }
+        setIsDragging(false);
+        const { x, i } = getSnappedPoint(dockWidth, ox);
+        scrubAnim.start({ x, config: { damping: 1, frequency: 0.2 } });
+        setSelectedItem(i);
       }
     },
     {
@@ -108,7 +110,14 @@ export const HtcHd2HomeDock = () => {
           className={`h-[480px] w-[${SCREEN_WIDTH}px] bg-slate-500 rounded relative overflow-hidden`}
           ref={deviceRef}
         >
-          <div data-id="screen-behind-dock" className="h-full"></div>
+          <div data-id="screen-behind-dock" className="h-full p-4 text-slate-100 text-lg">
+            Grab the scrubber at the bottom and scrub along X axis to reveal hidden dock items.
+            <br />
+            Inspiration:{" "}
+            <a href="https://youtu.be/HvKCMYVuvRM?t=277" target="_blank" className="underline">
+              HTC HD2 homescreen dock
+            </a>
+          </div>
           <a.div
             ref={dockItemsRef}
             style={{ x: dockX }}
@@ -125,10 +134,29 @@ export const HtcHd2HomeDock = () => {
             {...bindDrag()}
             style={{ x }}
             data-id="dock--scrub"
-            className={`bottom-0 absolute bg-violet-700 opacity-25 h-24 w-[${SCRUB_WIDTH}px] touch-none`}
-          ></a.div>
+            className={`bottom-0 absolute bg-slate-100 h-24 w-[${SCRUB_WIDTH}px] touch-none grid place-items-center rounded-t ${
+              isDragging ? "cursor-grabbing" : "cursor-grab"
+            }`}
+          >
+            <SelectedIcon className="w-16 text-slate-800" />
+          </a.div>
         </div>
       </div>
     </DefaultLayout>
   );
+};
+
+const getSnappedPoint = (dockWidth: number, offset: number) => {
+  if (icons.length <= 1) {
+    return { i: 0, x: 0 };
+  } else {
+    const snappingPoints: number[] = Array(icons.length);
+    const segmentLength =
+      (Math.min(SCREEN_WIDTH, dockWidth) - SCRUB_WIDTH) / (snappingPoints.length - 1);
+    for (let i = 0; i < snappingPoints.length; i++) {
+      snappingPoints[i] = i * segmentLength;
+    }
+    const x = snap(snappingPoints)(offset)!;
+    return { i: snappingPoints.indexOf(x), x };
+  }
 };
