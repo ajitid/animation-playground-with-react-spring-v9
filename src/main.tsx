@@ -8,24 +8,35 @@ import { BB10TextTransition } from "./pages/bb10-text-transition";
 import { HtcHd2HomeDock } from "./pages/htc-hd2-home-dock";
 import { ListItemTransition } from "./pages/list-item-transition";
 
+const PageLink = (props: { text: string; link: string }) => (
+  <Link to={props.link} className="text-blue-700">
+    {props.text}
+  </Link>
+);
+
 const router = createBrowserRouter([
   {
     path: "/",
     element: (
       <div className="mx-3 mt-2">
-        Not created webpage for home as I've only made{" "}
-        <Link to="bb10-text-transition" className="text-blue-700">
-          BB OS 10 text transition
-        </Link>
-        . Find{" "}
-        <a
-          target="_blank"
-          href="https://github.com/ajitid/animation-playground-rs9-anew"
-          className="text-blue-700"
-        >
-          Github repo here
-        </a>
-        .
+        <p>The examples have not been optimised for mobile use. Prefer using desktop instead.</p>
+        <ul className="mt-3">
+          <li className="mb-3">
+            <a
+              target="_blank"
+              href="https://github.com/ajitid/animation-playground-rs9-anew"
+              className="text-blue-700"
+            >
+              Codebase
+            </a>
+          </li>
+          <li>
+            <PageLink text="BB OS 10 text transition" link="bb10-text-transition" />
+          </li>
+          <li>
+            <PageLink text="Home dock for HTC HD2" link="htc-hd2-home-dock" />
+          </li>
+        </ul>
       </div>
     ),
   },
