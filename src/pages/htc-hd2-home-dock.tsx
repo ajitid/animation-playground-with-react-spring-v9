@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import useMeasure from "react-use-measure";
-import { useSpring, a } from "@react-spring/web";
+import { useSpring, a, easings } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 import {
   HomeIcon,
@@ -103,6 +103,14 @@ export const HtcHd2HomeDock = () => {
     }
   );
 
+  const previewStyle = useSpring({
+    blur: isDragging ? 7 : 0,
+    config: {
+      duration: 150,
+    },
+  });
+  const previewBackdropFilter = previewStyle.blur.to((v) => `blur(${v}px)`);
+
   const dockX =
     dockWidth > SCREEN_WIDTH
       ? x.to([0, SCREEN_WIDTH - SCRUB_WIDTH], [0, dockWidth - SCREEN_WIDTH]).to((v) => v * -1)
@@ -135,6 +143,16 @@ export const HtcHd2HomeDock = () => {
             <br />
             Not optimised for mobile view.
           </div>
+          <a.div
+            style={{
+              backdropFilter: previewBackdropFilter,
+              display: isDragging ? "grid" : "none",
+            }}
+            data-id="preview-layer"
+            className="absolute top-0 h-full w-full bg-stone-100 bg-opacity-50 grid place-items-center pb-12"
+          >
+            <SelectedIcon className="w-32 text-slate-900" />
+          </a.div>
           <a.div
             ref={dockItemsRef}
             style={{ x: dockX }}
