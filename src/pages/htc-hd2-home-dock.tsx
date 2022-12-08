@@ -75,16 +75,6 @@ export const HtcHd2HomeDock = () => {
     ({ offset: [ox], first, down, last }) => {
       if (first) {
         setIsDragging(true);
-        // we animate on `first` condition only to reset spring's `config`
-        // because it would have been modified on `last` condition and on
-        // `moveTo` function.
-        scrubAnim.start({
-          x: ox,
-          config: {
-            frequency: 0,
-            damping: 1,
-          },
-        });
       }
 
       if (down) scrubAnim.start({ x: ox, immediate: true });
