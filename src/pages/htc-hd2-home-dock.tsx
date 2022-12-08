@@ -56,7 +56,7 @@ export const HtcHd2HomeDock = () => {
   const SelectedIcon = icons[selectedItem];
 
   const deviceRef = useRef<HTMLDivElement>(null);
-  const [dockItemsRef, { width: dockWidth }] = useMeasure();
+  const [dockItemsRef, { width: dockWidth, height: dockHeight }] = useMeasure();
 
   const [{ x }, scrubAnim] = useSpring(
     () => ({
@@ -153,6 +153,8 @@ export const HtcHd2HomeDock = () => {
           >
             <SelectedIcon className="w-32 text-slate-900" />
           </a.div>
+
+          <div className="bg-sky-200 bottom-0 absolute w-full" style={{ height: dockHeight }}></div>
           <a.div
             ref={dockItemsRef}
             style={{ x: dockX }}
@@ -165,6 +167,7 @@ export const HtcHd2HomeDock = () => {
               </div>
             ))}
           </a.div>
+
           <a.div
             {...bindDrag()}
             style={{ x }}
