@@ -85,7 +85,7 @@ export const HtcHd2HomeDock = () => {
         });
       }
 
-      if (down) scrubAnim.start({ x: ox });
+      if (down) scrubAnim.start({ x: ox, immediate: true });
 
       if (last) {
         setIsDragging(false);
@@ -118,24 +118,26 @@ export const HtcHd2HomeDock = () => {
 
   return (
     <DefaultLayout>
-      <div className="min-h-screen bg-slate-700 pb-24 grid place-items-center">
+      <div className="min-h-screen bg-zinc-800 pb-24 grid place-items-center">
         <div
-          className={`h-[480px] ${screenWidthClassname} bg-slate-500 rounded relative overflow-hidden`}
+          className={`h-[480px] ${screenWidthClassname} rounded relative overflow-hidden`}
           ref={deviceRef}
         >
-          <div data-id="screen-behind-dock" className="h-full p-4 text-slate-100 text-lg">
+          <div data-id="screen-behind-dock" className="h-full p-4 text-sky-800 text-lg bg-sky-100">
             Grab the scrubber at the bottom and scrub along X axis to reveal hidden dock items.
             <br />
             Inspiration:{" "}
             <a href="https://youtu.be/HvKCMYVuvRM?t=277" target="_blank" className="underline">
               HTC HD2 homescreen dock
             </a>
+            <br />
+            Not optimised for mobile view.
           </div>
           <a.div
             ref={dockItemsRef}
             style={{ x: dockX }}
             data-id="dock--items"
-            className="whitespace-nowrap bg-slate-300 bottom-0 absolute"
+            className="whitespace-nowrap bg-sky-200 bottom-0 absolute"
           >
             {icons.map((Icon, idx) => (
               <div onPointerDown={() => moveTo(idx)} className="py-2 px-3 inline-block" key={idx}>
@@ -147,7 +149,7 @@ export const HtcHd2HomeDock = () => {
             {...bindDrag()}
             style={{ x }}
             data-id="dock--scrub"
-            className={`bottom-0 absolute bg-slate-100 h-24 ${scrubWidthClassname} touch-none grid place-items-center rounded-t ${
+            className={`bottom-0 absolute shadow-md bg-sky-50 h-24 ${scrubWidthClassname} touch-none grid place-items-center rounded-t ${
               isDragging ? "cursor-grabbing" : "cursor-grab"
             }`}
           >
