@@ -7,6 +7,7 @@ import "./main.css";
 import { BB10TextTransition } from "./pages/bb10-text-transition";
 import { HtcHd2HomeDock } from "./pages/htc-hd2-home-dock";
 import { ListItemTransition } from "./pages/list-item-transition";
+import { WireAndSockets } from "./pages/wire-and-scokets";
 
 const PageLink = (props: { text: string; link: string }) => (
   <Link to={props.link} className="text-blue-700">
@@ -36,6 +37,12 @@ const router = createBrowserRouter([
           <li>
             <PageLink text="Home dock for HTC HD2" link="htc-hd2-home-dock" />
           </li>
+          <li>
+            <PageLink text="[FIXME] Chat bubbles" link="chat-bubbles" />
+          </li>
+          <li>
+            <PageLink text="A connection with a wire and sockets" link="wire-and-sockets" />
+          </li>
         </ul>
       </div>
     ),
@@ -51,6 +58,14 @@ const router = createBrowserRouter([
   {
     path: "htc-hd2-home-dock",
     element: <HtcHd2HomeDock />,
+  },
+  {
+    path: "wire-and-sockets",
+    element: <WireAndSockets />,
+  },
+  {
+    path: "chat-bubbles",
+    element: <ListItemTransition />,
   },
 ]);
 

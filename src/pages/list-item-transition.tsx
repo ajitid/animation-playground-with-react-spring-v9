@@ -6,6 +6,15 @@ import { DefaultLayout } from "@/default-layout";
 
 type Item = { id: string; text: string };
 
+/*
+  FIXME: use staggered FLIP transitions instead, ref.
+  https://codesandbox.io/s/github/samselikoff/2022-08-24-staggered-imessage-animation?file=/pages/index.js
+  Notice while the element is being remove w/ an animation 
+  Also, animate rotation in FLIP, for reason, see
+  https://twitter.com/yiatko/status/1559275952462757888
+  https://twitter.com/yiatko/status/1564654580792803328
+ */
+
 export const ListItemTransition = () => {
   const [slowdown, setSlowdown] = useState(false);
 
@@ -28,9 +37,12 @@ export const ListItemTransition = () => {
       ];
     });
   };
-  const removeItem = (idx: number) => {
+  const removeItem = (id: string) => {
     setItems((prevItems) => {
-      const items = [...prevItems];
+      const idx = prevItems.findIndex((v) => v.id === id);
+      if (idx === -1) return prevItems;
+
+      const items = Array.from(prevItems);
       items.splice(idx, 1);
       return items;
     });
@@ -40,7 +52,7 @@ export const ListItemTransition = () => {
   const [itemToElMap] = useState(() => new WeakMap<Item, HTMLDivElement | null>());
 
   const transition = useTransition(items, {
-    from: { opacity: 0.2, scale: 0.8, height: 0 },
+    from: { opacity: 0, scale: 0.8, height: 0 },
     /*
       Taken from the comment https://github.com/pmndrs/react-spring/issues/521#issuecomment-467644794
       in which Paul Henschel mentions this https://github.com/pmndrs/react-spring-examples/blob/HEAD@%7B2019-02-26T22:40:56Z%7D/demos/hooks/notification-hub/index.js
@@ -64,7 +76,7 @@ export const ListItemTransition = () => {
         height: height,
       });
     },
-    leave: { opacity: 0.2, scale: 0.8, height: 0 },
+    leave: { opacity: 0, scale: 0.8, height: 0 },
     keys: (v) => v.id,
     config: {
       frequency: slowdown ? 2 : undefined,
@@ -85,7 +97,7 @@ export const ListItemTransition = () => {
           <span className="text-gray-700">Click on a message to remove</span>
         </div>
         <div className="mt-2">
-          {transition((style, item, _, idx) => (
+          {transition((style, item) => (
             /*
                 This is written in the same vein as
                 src/bb10-text-transition.tsx: measure with inner div and apply
@@ -99,7 +111,7 @@ export const ListItemTransition = () => {
                 FLIP, tricks like the above, makes UI animation on the web feel
                 hacky and they are.
               */
-            <a.div style={style} className="overflow-hidden origin-left">
+            <a.div style={style} className="origin-left">
               <div
                 ref={(el) => {
                   itemToElMap.set(item, el);
@@ -108,7 +120,7 @@ export const ListItemTransition = () => {
               >
                 <button
                   className="bg-slate-200 rounded-full py-2 px-4 inline-block w-full text-left"
-                  onClick={() => removeItem(idx)}
+                  onClick={() => removeItem(item.id)}
                 >
                   {item.text}
                 </button>

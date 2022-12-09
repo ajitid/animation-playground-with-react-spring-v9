@@ -71,7 +71,7 @@ export const HtcHd2HomeDock = () => {
     }),
     [dockWidth]
   );
-  const bindDrag = useDrag(
+  const scrubDragBind = useDrag(
     ({ offset: [ox], first, down, last }) => {
       if (first) {
         setIsDragging(true);
@@ -95,6 +95,7 @@ export const HtcHd2HomeDock = () => {
 
   const previewStyle = useSpring({
     blur: isDragging ? 7 : 0,
+    opacity: isDragging ? 1 : 0,
     config: {
       duration: 150,
     },
@@ -118,7 +119,7 @@ export const HtcHd2HomeDock = () => {
 
   return (
     <DefaultLayout>
-      <div className="min-h-screen bg-zinc-800 pb-24 grid place-items-center">
+      <div className="min-h-screen bg-zinc-800 pb-24 grid place-items-center touch-cursor">
         <div
           className={`h-[480px] ${screenWidthClassname} rounded relative overflow-hidden`}
           ref={deviceRef}
@@ -141,7 +142,9 @@ export const HtcHd2HomeDock = () => {
             data-id="preview-layer"
             className="absolute top-0 h-full w-full bg-stone-100 bg-opacity-50 grid place-items-center pb-12"
           >
-            <SelectedIcon className="w-32 text-slate-900" />
+            <a.div style={{ opacity: previewStyle.opacity }}>
+              <SelectedIcon className="w-32 text-slate-900" />
+            </a.div>
           </a.div>
 
           <div className="bg-sky-200 bottom-0 absolute w-full" style={{ height: dockHeight }}></div>
@@ -159,12 +162,10 @@ export const HtcHd2HomeDock = () => {
           </a.div>
 
           <a.div
-            {...bindDrag()}
+            {...scrubDragBind()}
             style={{ x }}
             data-id="dock--scrub"
-            className={`bottom-0 absolute shadow-md bg-sky-50 h-24 ${scrubWidthClassname} touch-none grid place-items-center rounded-t ${
-              isDragging ? "cursor-grabbing" : "cursor-grab"
-            }`}
+            className={`bottom-0 absolute shadow-md bg-sky-50 h-24 ${scrubWidthClassname} touch-none grid place-items-center rounded-t`}
           >
             <SelectedIcon className="w-16 text-slate-800" />
           </a.div>

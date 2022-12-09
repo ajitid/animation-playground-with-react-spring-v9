@@ -9,3 +9,8 @@
   src: url("/fonts/rubik-regular.woff2") format("woff2");
   font-display: block;
 }
+
+
+.touch-cursor {
+  cursor: url('/images/touch-cursor.png') 32 32, auto;
+}
