@@ -13,7 +13,8 @@ import cn from "clsx";
 
 import { DefaultLayout } from "@/default-layout";
 import { useSpring } from "@react-spring/web";
-import { Point } from "@/uff/types";
+import { Point2D } from "@/uff/types";
+import { clamp2D } from "@/uff/clamp2d";
 
 const SOCKET_WIDTH = 32;
 const socketDimensionClassName = `w-[32px] h-[32px]`;
@@ -86,10 +87,18 @@ export const WireAndSockets = () => {
     let handleEl = idx === 0 ? leftHandleRef.current : rightHandleRef.current;
     if (!handleEl) return;
 
-    pos.x = x;
-    pos.y = y;
+    if (slackLength === 0) return;
+    const newPos = clamp2D(
+      slackLength,
+      { x, y },
+      idx === 0
+        ? { x: handlePosRef.current[1].x, y: handlePosRef.current[1].y }
+        : { x: handlePosRef.current[0].x, y: handlePosRef.current[0].y }
+    );
+    pos.x = newPos.x;
+    pos.y = newPos.y;
     // Both translate3d and translate with Z-axis invoke GPU anim, ref: https://discord.com/channels/341919693348536320/716908973713784904/1049619845471273011
-    handleEl.style.setProperty("transform", `translate3d(${x}px, ${y}px, 0px)`);
+    handleEl.style.setProperty("transform", `translate3d(${pos.x}px, ${pos.y}px, 0px)`);
 
     // spring
     const decline = slackDecline(
@@ -236,7 +245,7 @@ const Socket = forwardRef<HTMLDivElement>((_, ref) => {
   );
 });
 
-const slackDecline = (point1: Point, point2: Point, slackLength: number) => {
-  const distance = slackLength - Math.sqrt((point1.x - point2.x) ** 2 + (point1.y - point2.y) ** 2);
-  return Math.max(Math.min(slackLength, distance), 0);
+const slackDecline = (point1: Point2D, point2: Point2D, slackLength: number) => {
+  const d = slackLength - distance(point1, point2);
+  return Math.max(Math.min(slackLength, d), 0);
 };
