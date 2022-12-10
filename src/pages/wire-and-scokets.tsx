@@ -19,13 +19,22 @@ import { clamp2D } from "@/uff/clamp2d";
 
 /*
   TODO
-  - When initiailised, rope and handles are at top left. Doing `slackLength === 0 && "invisible"` on DefaultLayout is not enough. Need to find a way.
-  - In `calculateDecline` when I do `anim.start`, if decline is 0 (i.e. rope is at full length) I need to make a stiff animation, 
-    ref. https://codesandbox.io/s/framer-motion-imperative-animation-controls-44mgz?file=/src/index.tsx:532-707
-    and I would need a functon in `config` for stiff because I'd only need stiff anim along y-axis as it has the decline, and not on x-axis
-  - We need to render shadow of the rope which suppposed has slightly larger decline. Refer to https://twitter.com/aashudubey_ad/status/1571250425772544000
-  - Better handle styling https://twitter.com/GK3/status/1545073404289552384?s=20&t=GaFMgw7-_phqSgkwUmvu7Q
+  - When initiailised, rope and handles are at top left. Doing `slackLength ===
+    0 && "invisible"` on DefaultLayout is not enough. Need to find a way.
+  - In `calculateDecline` when I do `anim.start`, if decline is 0 (i.e. rope is
+    at full length) I need to make a stiff animation, ref.
+    https://codesandbox.io/s/framer-motion-imperative-animation-controls-44mgz?file=/src/index.tsx:532-707
+    and I would need a functon in `config` for stiff because I'd only need stiff
+    anim along y-axis as it has the decline, and not on x-axis
+  - We need to render shadow of the rope which suppposed has slightly larger
+    decline. Refer to
+    https://twitter.com/aashudubey_ad/status/1571250425772544000
+  - Better handle styling
+    https://twitter.com/GK3/status/1545073404289552384?s=20&t=GaFMgw7-_phqSgkwUmvu7Q
+    Have a png/svg/div of some sort to denote it is a handle. Like 3 hamburger lines on the handle to denote it has grip,
+    or one plus alert slider has pattern on it, do that  
   - scale up handle while dragging
+  - Add instruction that they can drag both handles
 */
 
 const SOCKET_WIDTH = 32;

@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider, Link } from "react-router-dom";
 import "./main.css";
 
 import { BB10TextTransition } from "./pages/bb10-text-transition";
+import { FluidSomberoList } from "./pages/fluid-sombero-list";
 import { HtcHd2HomeDock } from "./pages/htc-hd2-home-dock";
 import { ListItemTransition } from "./pages/list-item-transition";
 import { WireAndSockets } from "./pages/wire-and-scokets";
@@ -43,6 +44,9 @@ const router = createBrowserRouter([
           <li>
             <PageLink text="A connection with a wire and sockets" link="wire-and-sockets" />
           </li>
+          <li>
+            <PageLink text="A list with ripple effect" link="ripple-list" />
+          </li>
         </ul>
       </div>
     ),
@@ -52,20 +56,20 @@ const router = createBrowserRouter([
     element: <BB10TextTransition />,
   },
   {
-    path: "list-items",
-    element: <ListItemTransition />,
-  },
-  {
     path: "htc-hd2-home-dock",
     element: <HtcHd2HomeDock />,
+  },
+  {
+    path: "chat-bubbles",
+    element: <ListItemTransition />,
   },
   {
     path: "wire-and-sockets",
     element: <WireAndSockets />,
   },
   {
-    path: "chat-bubbles",
-    element: <ListItemTransition />,
+    path: "ripple-list",
+    element: <FluidSomberoList />,
   },
 ]);
 
