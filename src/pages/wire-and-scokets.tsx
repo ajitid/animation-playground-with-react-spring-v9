@@ -2,7 +2,7 @@
 // replicated:
 // - https://twitter.com/ralex1993/status/1545192456920059904
 // - https://twitter.com/aashudubey_ad/status/1571250425772544000 | permalink: https://github.com/Aashu-Dubey/react-native-animation-samples/blob/7ed8c6f76526317b029feb7d848070321368d0e3/src/samples/rope_physics/RopeViewSvg.tsx#L93
-import { forwardRef, useRef, useEffect } from "react";
+import { forwardRef, useRef, useEffect, useState } from "react";
 import { FC, WC } from "@/shared/types";
 import { distance } from "@/uff/distance";
 import { FaceSmileIcon } from "@heroicons/react/24/outline";
@@ -232,8 +232,16 @@ export const WireAndSockets = () => {
     if (!(leftHandleEl && rightHandleEl)) return;
     if (slackLength === 0) return;
 
-    updatePos(0, [topLeftSocketMeasure.left, topLeftSocketMeasure.top], "yes");
-    updatePos(1, [bottomRightSocketMeasure.left, bottomRightSocketMeasure.top], "yes");
+    const leftSocketMeasure = leftSocketRefs.current[1]?.getBoundingClientRect();
+    const rightSocketMeasure = rightSocketRefs.current[2]?.getBoundingClientRect();
+    if (!(leftSocketMeasure && rightSocketMeasure)) {
+      throw new Error(
+        "Failed during initialisation. Check if the sockets to put on initially are available."
+      );
+    }
+
+    updatePos(0, [leftSocketMeasure.left, leftSocketMeasure.top], "yes");
+    updatePos(1, [rightSocketMeasure.left, rightSocketMeasure.top], "yes");
   }, [slackLength]);
 
   return (
@@ -300,9 +308,9 @@ export const WireAndSockets = () => {
           }
           ${rightHandleStyle.x.get() + SOCKET_WIDTH / 2}
           ${rightHandleStyle.y.get() + SOCKET_WIDTH / 2}`}
-          stroke="red"
           strokeWidth={5}
           fill="none"
+          className={cn("transition-colors ease-in-out stroke-gray-500", true && "stroke-pink-600")}
         />
         {/* control point  TODO remove */}
         <circle
@@ -329,10 +337,7 @@ const Item = forwardRef<HTMLLIElement, WC>((props, ref) => {
 const Socket = forwardRef<HTMLDivElement>((_, ref) => {
   return (
     <div className="shrink-0 p-1 bg-slate-500 grid place-items-center rounded-full">
-      <div
-        ref={ref}
-        className={`${socketDimensionClassName} rounded-full shadow-lg bg-slate-100`}
-      />
+      <div ref={ref} className={`${socketDimensionClassName} rounded-full bg-slate-100`} />
     </div>
   );
 });
