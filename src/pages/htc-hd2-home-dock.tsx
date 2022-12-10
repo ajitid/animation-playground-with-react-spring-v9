@@ -1,5 +1,11 @@
 // Inspiration: HTC HD2's phone dock https://youtu.be/HvKCMYVuvRM?t=277
 
+/*
+  FIXME if I scrub too fast, the scrubbing stops. I don't know what the reason is.
+  I've tried throttling it, pulling getSnappedPoint/snap into a use callback so that less
+  calculations be made on call but no luck.
+*/
+
 import { useRef, useState } from "react";
 import useMeasure from "react-use-measure";
 import { useSpring, a, easings } from "@react-spring/web";
@@ -185,7 +191,7 @@ const getSnappedPoint = (dockWidth: number, offset: number) => {
     for (let i = 0; i < snappingPoints.length; i++) {
       snappingPoints[i] = i * segmentLength;
     }
-    const x = snap(snappingPoints)(offset)!;
-    return { i: snappingPoints.indexOf(x), x };
+    const [x, i] = snap(snappingPoints)(offset)!;
+    return { x, i };
   }
 };

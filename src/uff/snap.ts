@@ -1,5 +1,8 @@
 // src: Popmotion
-export const snap = (points: number | number[]) => {
+
+export function snap(x: number): (v: number) => number;
+export function snap(x: number[]): (v: number) => [point: number, index: number];
+export function snap(points: number | number[]) {
   if (typeof points === "number") {
     return (v: number) => Math.round(v / points) * points;
   } else {
@@ -13,14 +16,14 @@ export const snap = (points: number | number[]) => {
         const point = points[i];
         const distance = Math.abs(point - v);
 
-        if (distance === 0) return point;
+        if (distance === 0) return [point, i];
 
-        if (distance > lastDistance) return points[i - 1];
+        if (distance > lastDistance) return [points[i - 1], i - 1];
 
-        if (i === numPoints - 1) return point;
+        if (i === numPoints - 1) return [point, i];
 
         lastDistance = distance;
       }
     };
   }
-};
+}
