@@ -2,12 +2,13 @@
 // replicated:
 // - https://twitter.com/ralex1993/status/1545192456920059904
 // - https://twitter.com/aashudubey_ad/status/1571250425772544000 | permalink: https://github.com/Aashu-Dubey/react-native-animation-samples/blob/7ed8c6f76526317b029feb7d848070321368d0e3/src/samples/rope_physics/RopeViewSvg.tsx#L93
+// More inspo. which I didn't implemented:
+// - Rope cutting: https://twitter.com/geordiemhall/status/1551105123501604864?s=20&t=e9bk14ER6VXDslvx6-i6LQ
 import { forwardRef, useRef, useEffect, useState } from "react";
-import { FC, WC } from "@/shared/types";
+import { WC } from "@/shared/types";
 import { distance } from "@/uff/distance";
-import { FaceSmileIcon } from "@heroicons/react/24/outline";
 import useMeasure from "react-use-measure";
-import { a, config, SpringConfig } from "@react-spring/web";
+import { a } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 import cn from "clsx";
 
@@ -15,6 +16,15 @@ import { DefaultLayout } from "@/default-layout";
 import { useSpring } from "@react-spring/web";
 import { Point2D } from "@/uff/types";
 import { clamp2D } from "@/uff/clamp2d";
+
+/*
+  TODO
+  - When initiailised, rope and handles are at top left. Doing `slackLength === 0 && "invisible"` on DefaultLayout is not enough. Need to find a way.
+  - In `calculateDecline` when I do `anim.start`, if decline is 0 (i.e. rope is at full length) I need to make a stiff animation, 
+    ref. https://codesandbox.io/s/framer-motion-imperative-animation-controls-44mgz?file=/src/index.tsx:532-707
+    and I would need a functon in `config` for stiff because I'd only need stiff anim along y-axis as it has the decline, and not on x-axis
+  - We need to render shadow of the rope which suppposed has slightly larger decline. Refer to https://twitter.com/aashudubey_ad/status/1571250425772544000
+*/
 
 const SOCKET_WIDTH = 32;
 const socketDimensionClassName = `w-[32px] h-[32px]`;
@@ -50,8 +60,6 @@ export const WireAndSockets = () => {
     { x: bottomRightSocketMeasure.left, y: bottomRightSocketMeasure.top }
   );
 
-  const lastValidCoord = useRef<Point2D>({ x: 0, y: 0 });
-
   const [leftHandleStyle, leftHandleAnim] = useSpring(() => ({
     x: 0,
     y: 0,
@@ -62,6 +70,8 @@ export const WireAndSockets = () => {
     y: 0,
     config: handleSpringConfig,
   }));
+
+  const lastValidCoord = useRef<Point2D>({ x: 0, y: 0 });
 
   const leftHandleRef = useRef<HTMLDivElement>(null);
   useDrag(
@@ -112,6 +122,7 @@ export const WireAndSockets = () => {
       filterTaps: true,
     }
   );
+
   const rightHandleRef = useRef<HTMLDivElement>(null);
   useDrag(
     ({ offset: [x, y], first, last }) => {
@@ -181,7 +192,7 @@ export const WireAndSockets = () => {
     config: ropeSpringConfig,
   }));
 
-  // for debugging: control point (the point determines what curve would be drawn) TODO remove
+  // for debugging: control point (the point that determines what curve would be drawn)
   const cirleRef = useRef<SVGCircleElement>(null);
 
   const getSlackDecline = () =>
@@ -208,10 +219,6 @@ export const WireAndSockets = () => {
       x: midpointX,
       y: midpointY,
       immediate: immediate,
-      // TODO if decline is 0 make a stiff anim, ref. https://codesandbox.io/s/framer-motion-imperative-animation-controls-44mgz?file=/src/index.tsx:532-707
-      // you would need a functon in `config` for stiff because you'd only need
-      // stiff anim along y-axis as it has the decline, not x
-      // config: decline === 0 ? stiffSpringConfig : ropeSpringConfig,
     });
 
     if (debug && cirleRef.current) {
@@ -247,9 +254,6 @@ export const WireAndSockets = () => {
   }
 
   useEffect(() => {
-    const leftHandleEl = leftHandleRef.current;
-    const rightHandleEl = rightHandleRef.current;
-    if (!(leftHandleEl && rightHandleEl)) return;
     if (slackLength === 0) return;
 
     const leftSocketMeasure = leftSocketRefs.current[1]?.getBoundingClientRect();
@@ -265,14 +269,8 @@ export const WireAndSockets = () => {
   }, [slackLength]);
 
   return (
-    <DefaultLayout className="cursor-touch select-none">
-      <div
-        className={cn(
-          "min-h-screen grid place-items-center pb-32 bg-slate-800",
-          // TODO not working
-          slackLength === 0 && "invisible"
-        )}
-      >
+    <DefaultLayout className={cn("cursor-touch select-none")}>
+      <div className="min-h-screen grid place-items-center pb-32 bg-slate-800">
         <div className="w-[540px] grid grid-cols-2 rounded bg-slate-400 gap-28">
           <ul>
             {leftSockets.map((socket, i) => (
@@ -331,7 +329,7 @@ export const WireAndSockets = () => {
             isConnected && "stroke-pink-600"
           )}
         />
-        {/* control point  TODO remove */}
+        {/* for debugging: control point (the point that determines what curve would be drawn) */}
         <circle
           className={cn(!debug && "hidden")}
           ref={cirleRef}
