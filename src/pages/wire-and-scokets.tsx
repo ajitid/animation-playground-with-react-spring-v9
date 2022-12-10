@@ -19,6 +19,8 @@ import { clamp2D } from "@/uff/clamp2d";
 const SOCKET_WIDTH = 32;
 const socketDimensionClassName = `w-[32px] h-[32px]`;
 
+const ALLOWED_BOUND = 15;
+
 const debug = false;
 
 const ropeSpringConfig = {
@@ -26,13 +28,21 @@ const ropeSpringConfig = {
   damping: 0.4,
 };
 
+const leftSockets = ["all audio", "this app", "calls"];
+const rightSockets = ["iPhone speaker", "george's AirPods", "kitchen", "other devices"];
+
 export const WireAndSockets = () => {
+  const leftSocketRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const rightSocketRefs = useRef<(HTMLDivElement | null)[]>([]);
+
   const [topLeftSocketMeasureRefFn, topLeftSocketMeasure] = useMeasure();
   const [bottomRightSocketMeasureRefFn, bottomRightSocketMeasure] = useMeasure();
   const slackLength = distance(
-    { x: topLeftSocketMeasure.x, y: topLeftSocketMeasure.y },
-    { x: bottomRightSocketMeasure.x, y: bottomRightSocketMeasure.y }
+    { x: topLeftSocketMeasure.left, y: topLeftSocketMeasure.top },
+    { x: bottomRightSocketMeasure.left, y: bottomRightSocketMeasure.top }
   );
+
+  const lastValidCoord = useRef<Point2D>({ x: 0, y: 0 });
 
   const handlePosRef = useRef([
     { x: 0, y: 0 },
@@ -40,8 +50,36 @@ export const WireAndSockets = () => {
   ]);
   const leftHandleRef = useRef<HTMLDivElement>(null);
   useDrag(
-    ({ offset: [x, y] }) => {
+    ({ offset: [x, y], last, first }) => {
+      if (first) {
+        lastValidCoord.current = { x: handlePosRef.current[0].x, y: handlePosRef.current[0].y };
+      }
+
       updatePos(0, [x, y]);
+
+      if (last) {
+        let foundNewValidCoords = false;
+
+        for (const el of leftSocketRefs.current) {
+          if (!el) continue;
+
+          const { left, top } = el?.getBoundingClientRect();
+          if (
+            x > left - ALLOWED_BOUND &&
+            x < left + ALLOWED_BOUND &&
+            y > top - ALLOWED_BOUND &&
+            y < top + ALLOWED_BOUND
+          ) {
+            updatePos(0, [left, top]);
+            foundNewValidCoords = true;
+            break;
+          }
+        }
+
+        if (!foundNewValidCoords) {
+          updatePos(0, [lastValidCoord.current.x, lastValidCoord.current.y]);
+        }
+      }
     },
     {
       target: leftHandleRef,
@@ -50,8 +88,35 @@ export const WireAndSockets = () => {
   );
   const rightHandleRef = useRef<HTMLDivElement>(null);
   useDrag(
-    ({ offset: [x, y] }) => {
+    ({ offset: [x, y], first, last }) => {
+      if (first) {
+        lastValidCoord.current = { x: handlePosRef.current[1].x, y: handlePosRef.current[1].y };
+      }
+
       updatePos(1, [x, y]);
+
+      if (last) {
+        let foundNewValidCoords = false;
+
+        for (const el of rightSocketRefs.current) {
+          if (!el) continue;
+
+          const { left, top } = el?.getBoundingClientRect();
+          if (
+            x > left - ALLOWED_BOUND &&
+            x < left + ALLOWED_BOUND &&
+            y > top - ALLOWED_BOUND &&
+            y < top + ALLOWED_BOUND
+          ) {
+            updatePos(1, [left, top]);
+            break;
+          }
+
+          if (!foundNewValidCoords) {
+            updatePos(1, [lastValidCoord.current.x, lastValidCoord.current.y]);
+          }
+        }
+      }
     },
     {
       target: rightHandleRef,
@@ -147,12 +212,12 @@ export const WireAndSockets = () => {
     if (!(leftHandleEl && rightHandleEl)) return;
     if (slackLength === 0) return;
 
-    updatePos(0, [topLeftSocketMeasure.x, topLeftSocketMeasure.y], true);
-    updatePos(1, [bottomRightSocketMeasure.x, bottomRightSocketMeasure.y], true);
+    updatePos(0, [topLeftSocketMeasure.left, topLeftSocketMeasure.top], true);
+    updatePos(1, [bottomRightSocketMeasure.left, bottomRightSocketMeasure.top], true);
   }, [slackLength]);
 
   return (
-    <DefaultLayout>
+    <DefaultLayout className="cursor-touch">
       <div
         className={cn(
           "min-h-screen grid place-items-center pb-32 bg-slate-800",
@@ -162,36 +227,30 @@ export const WireAndSockets = () => {
       >
         <div className="w-[540px] grid grid-cols-2 rounded bg-slate-400 gap-28">
           <ul>
-            <Item>
-              <span className="mr-3 flex-1">all audio</span>
-              <Socket ref={topLeftSocketMeasureRefFn} />
-            </Item>
-            <Item>
-              <span className="mr-3 flex-1">this app</span>
-              <Socket />
-            </Item>
-            <Item>
-              <span className="mr-3 flex-1">calls</span>
-              <Socket />
-            </Item>
+            {leftSockets.map((socket, i) => (
+              <Item key={i}>
+                <span className="mr-3 flex-1">{socket}</span>
+                <Socket
+                  ref={(el) => {
+                    leftSocketRefs.current[i] = el;
+                    if (i === 0) topLeftSocketMeasureRefFn(el);
+                  }}
+                />
+              </Item>
+            ))}
           </ul>
           <ul>
-            <Item>
-              <span className="mr-3 flex-1">iPhone speaker</span>
-              <Socket />
-            </Item>
-            <Item>
-              <span className="mr-3 flex-1">george's AirPods</span>
-              <Socket />
-            </Item>
-            <Item>
-              <span className="mr-3 flex-1">kitchen</span>
-              <Socket />
-            </Item>
-            <Item>
-              <span className="mr-3 flex-1">other devices</span>
-              <Socket ref={bottomRightSocketMeasureRefFn} />
-            </Item>
+            {rightSockets.map((socket, i) => (
+              <Item key={i}>
+                <span className="mr-3 flex-1">{socket}</span>
+                <Socket
+                  ref={(el) => {
+                    rightSocketRefs.current[i] = el;
+                    if (i === rightSockets.length - 1) bottomRightSocketMeasureRefFn(el);
+                  }}
+                />
+              </Item>
+            ))}
           </ul>
         </div>
       </div>

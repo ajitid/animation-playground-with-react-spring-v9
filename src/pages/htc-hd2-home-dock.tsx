@@ -124,8 +124,8 @@ export const HtcHd2HomeDock = () => {
   };
 
   return (
-    <DefaultLayout>
-      <div className="min-h-screen bg-zinc-800 pb-24 grid place-items-center touch-cursor">
+    <DefaultLayout className="cursor-touch">
+      <div className="min-h-screen bg-zinc-800 pb-24 grid place-items-center">
         <div
           className={`h-[480px] ${screenWidthClassname} rounded relative overflow-hidden`}
           ref={deviceRef}
