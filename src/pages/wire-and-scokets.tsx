@@ -19,13 +19,19 @@ import { clamp2D } from "@/uff/clamp2d";
 const SOCKET_WIDTH = 32;
 const socketDimensionClassName = `w-[32px] h-[32px]`;
 
-const ALLOWED_BOUND = 15;
+const ALLOWED_BOUND_Y = 15;
+const ALLOWED_BOUND_X = 20;
 
 const debug = false;
 
 const ropeSpringConfig = {
   frequency: 0.4,
   damping: 0.4,
+};
+
+const handleSpringConfig = {
+  frequency: 0.3,
+  damping: 1,
 };
 
 const leftSockets = ["all audio", "this app", "calls"];
@@ -44,15 +50,22 @@ export const WireAndSockets = () => {
 
   const lastValidCoord = useRef<Point2D>({ x: 0, y: 0 });
 
-  const handlePosRef = useRef([
-    { x: 0, y: 0 },
-    { x: 0, y: 0 },
-  ]);
+  const [leftHandleStyle, leftHandleAnim] = useSpring(() => ({
+    x: 0,
+    y: 0,
+    config: handleSpringConfig,
+  }));
+  const [rightHandleStyle, rightHandleAnim] = useSpring(() => ({
+    x: 0,
+    y: 0,
+    config: handleSpringConfig,
+  }));
+
   const leftHandleRef = useRef<HTMLDivElement>(null);
   useDrag(
     ({ offset: [x, y], last, first }) => {
       if (first) {
-        lastValidCoord.current = { x: handlePosRef.current[0].x, y: handlePosRef.current[0].y };
+        lastValidCoord.current = { x: leftHandleStyle.x.get(), y: leftHandleStyle.y.get() };
       }
 
       updatePos(0, [x, y]);
@@ -65,32 +78,36 @@ export const WireAndSockets = () => {
 
           const { left, top } = el?.getBoundingClientRect();
           if (
-            x > left - ALLOWED_BOUND &&
-            x < left + ALLOWED_BOUND &&
-            y > top - ALLOWED_BOUND &&
-            y < top + ALLOWED_BOUND
+            x > left - ALLOWED_BOUND_X &&
+            x < left + ALLOWED_BOUND_X &&
+            y > top - ALLOWED_BOUND_Y &&
+            y < top + ALLOWED_BOUND_Y
           ) {
-            updatePos(0, [left, top]);
+            updatePos(0, [left, top], "no-and-animate-handle");
             foundNewValidCoords = true;
             break;
           }
         }
 
         if (!foundNewValidCoords) {
-          updatePos(0, [lastValidCoord.current.x, lastValidCoord.current.y]);
+          updatePos(
+            0,
+            [lastValidCoord.current.x, lastValidCoord.current.y],
+            "no-and-animate-handle"
+          );
         }
       }
     },
     {
       target: leftHandleRef,
-      from: () => [handlePosRef.current[0].x, handlePosRef.current[0].y],
+      from: () => [leftHandleStyle.x.get(), leftHandleStyle.y.get()],
     }
   );
   const rightHandleRef = useRef<HTMLDivElement>(null);
   useDrag(
     ({ offset: [x, y], first, last }) => {
       if (first) {
-        lastValidCoord.current = { x: handlePosRef.current[1].x, y: handlePosRef.current[1].y };
+        lastValidCoord.current = { x: rightHandleStyle.x.get(), y: rightHandleStyle.y.get() };
       }
 
       updatePos(1, [x, y]);
@@ -103,24 +120,28 @@ export const WireAndSockets = () => {
 
           const { left, top } = el?.getBoundingClientRect();
           if (
-            x > left - ALLOWED_BOUND &&
-            x < left + ALLOWED_BOUND &&
-            y > top - ALLOWED_BOUND &&
-            y < top + ALLOWED_BOUND
+            x > left - ALLOWED_BOUND_X &&
+            x < left + ALLOWED_BOUND_X &&
+            y > top - ALLOWED_BOUND_Y &&
+            y < top + ALLOWED_BOUND_Y
           ) {
-            updatePos(1, [left, top]);
+            updatePos(1, [left, top], "no-and-animate-handle");
             break;
           }
 
           if (!foundNewValidCoords) {
-            updatePos(1, [lastValidCoord.current.x, lastValidCoord.current.y]);
+            updatePos(
+              1,
+              [lastValidCoord.current.x, lastValidCoord.current.y],
+              "no-and-animate-handle"
+            );
           }
         }
       }
     },
     {
       target: rightHandleRef,
-      from: () => [handlePosRef.current[1].x, handlePosRef.current[1].y],
+      from: () => [rightHandleStyle.x.get(), rightHandleStyle.y.get()],
     }
   );
 
@@ -134,10 +155,10 @@ export const WireAndSockets = () => {
 
       ropeRef.current.setAttribute(
         "d",
-        `M ${handlePosRef.current[0].x + SOCKET_WIDTH / 2} ${
-          handlePosRef.current[0].y + SOCKET_WIDTH / 2
-        } Q ${v.value.x} ${v.value.y} ${handlePosRef.current[1].x + SOCKET_WIDTH / 2} ${
-          handlePosRef.current[1].y + SOCKET_WIDTH / 2
+        `M ${leftHandleStyle.x.get() + SOCKET_WIDTH / 2} ${
+          leftHandleStyle.y.get() + SOCKET_WIDTH / 2
+        } Q ${v.value.x} ${v.value.y} ${rightHandleStyle.x.get() + SOCKET_WIDTH / 2} ${
+          rightHandleStyle.y.get() + SOCKET_WIDTH / 2
         }`
       );
     },
@@ -150,20 +171,19 @@ export const WireAndSockets = () => {
   function calculateDecline(immediate = false) {
     const decline = slackDecline(
       {
-        x: handlePosRef.current[0].x + SOCKET_WIDTH / 2,
-        y: handlePosRef.current[0].y + SOCKET_WIDTH / 2,
+        x: leftHandleStyle.x.get() + SOCKET_WIDTH / 2,
+        y: leftHandleStyle.y.get() + SOCKET_WIDTH / 2,
       },
       {
-        x: handlePosRef.current[1].x + SOCKET_WIDTH / 2,
-        y: handlePosRef.current[1].y + SOCKET_WIDTH / 2,
+        x: rightHandleStyle.x.get() + SOCKET_WIDTH / 2,
+        y: rightHandleStyle.y.get() + SOCKET_WIDTH / 2,
       },
       slackLength
     );
 
-    const midpointX =
-      (handlePosRef.current[0].x + handlePosRef.current[1].x) / 2 + SOCKET_WIDTH / 2;
+    const midpointX = (leftHandleStyle.x.get() + rightHandleStyle.x.get()) / 2 + SOCKET_WIDTH / 2;
     const midpointY =
-      (handlePosRef.current[0].y + handlePosRef.current[1].y) / 2 + decline + SOCKET_WIDTH / 2;
+      (leftHandleStyle.y.get() + rightHandleStyle.y.get()) / 2 + decline + SOCKET_WIDTH / 2;
     anim.start({
       x: midpointX,
       y: midpointY,
@@ -183,27 +203,27 @@ export const WireAndSockets = () => {
   function updatePos(
     idx: 0 | 1 /* left or right socket */,
     [x, y]: [number, number],
-    immediateWithoutChecks = false
+    immediate: "yes" | "no-and-animate-handle" | "no" = "no"
   ) {
-    const pos = handlePosRef.current[idx];
-    let handleEl = idx === 0 ? leftHandleRef.current : rightHandleRef.current;
-    if (!handleEl) return;
+    let pos =
+      immediate === "yes"
+        ? { x, y }
+        : clamp2D(
+            slackLength,
+            { x, y },
+            idx === 0
+              ? { x: rightHandleStyle.x.get(), y: rightHandleStyle.y.get() }
+              : { x: leftHandleStyle.x.get(), y: leftHandleStyle.y.get() }
+          );
 
-    let newPos = immediateWithoutChecks
-      ? { x, y }
-      : clamp2D(
-          slackLength,
-          { x, y },
-          idx === 0
-            ? { x: handlePosRef.current[1].x, y: handlePosRef.current[1].y }
-            : { x: handlePosRef.current[0].x, y: handlePosRef.current[0].y }
-        );
-    pos.x = newPos.x;
-    pos.y = newPos.y;
-    // Both translate3d and translate with Z-axis invoke GPU anim, ref: https://discord.com/channels/341919693348536320/716908973713784904/1049619845471273011
-    handleEl.style.setProperty("transform", `translate3d(${pos.x}px, ${pos.y}px, 0px)`);
-
-    calculateDecline(immediateWithoutChecks);
+    (idx === 0 ? leftHandleAnim : rightHandleAnim).start({
+      x: pos.x,
+      y: pos.y,
+      immediate: immediate !== "no-and-animate-handle",
+      onChange() {
+        calculateDecline(immediate === "yes");
+      },
+    });
   }
 
   useEffect(() => {
@@ -212,12 +232,12 @@ export const WireAndSockets = () => {
     if (!(leftHandleEl && rightHandleEl)) return;
     if (slackLength === 0) return;
 
-    updatePos(0, [topLeftSocketMeasure.left, topLeftSocketMeasure.top], true);
-    updatePos(1, [bottomRightSocketMeasure.left, bottomRightSocketMeasure.top], true);
+    updatePos(0, [topLeftSocketMeasure.left, topLeftSocketMeasure.top], "yes");
+    updatePos(1, [bottomRightSocketMeasure.left, bottomRightSocketMeasure.top], "yes");
   }, [slackLength]);
 
   return (
-    <DefaultLayout className="cursor-touch">
+    <DefaultLayout className="cursor-touch select-none">
       <div
         className={cn(
           "min-h-screen grid place-items-center pb-32 bg-slate-800",
@@ -254,30 +274,32 @@ export const WireAndSockets = () => {
           </ul>
         </div>
       </div>
-      <div
+      <a.div
         data-id="handle-left"
         ref={leftHandleRef}
+        style={leftHandleStyle}
         className={`${socketDimensionClassName} bg-pink-300 rounded-full fixed z-20 top-0 left-0 touch-none`}
-      ></div>
-      <div
+      />
+      <a.div
         data-id="handle-right"
         ref={rightHandleRef}
+        style={rightHandleStyle}
         className={`${socketDimensionClassName} bg-violet-300 rounded-full fixed z-20 top-0 left-0 touch-none`}
-      ></div>
+      />
       <svg className="fixed top-0 left-0 z-10 w-full h-full">
         <path
           ref={ropeRef}
           d={`M 
-          ${handlePosRef.current[0].x + SOCKET_WIDTH / 2} 
-          ${handlePosRef.current[0].y + SOCKET_WIDTH / 2} 
+          ${leftHandleStyle.x.get() + SOCKET_WIDTH / 2} 
+          ${leftHandleStyle.y.get() + SOCKET_WIDTH / 2} 
           Q 
-          ${(handlePosRef.current[0].x + handlePosRef.current[1].x) / 2 + SOCKET_WIDTH / 2} 
+          ${(leftHandleStyle.x.get() + rightHandleStyle.x.get()) / 2 + SOCKET_WIDTH / 2} 
           ${
-            (handlePosRef.current[0].y + handlePosRef.current[1].y) / 2 + SOCKET_WIDTH / 2
+            (leftHandleStyle.y.get() + rightHandleStyle.y.get()) / 2 + SOCKET_WIDTH / 2
             /*  no need to add decline here as this would be overwritten anyway */
           }
-          ${handlePosRef.current[1].x + SOCKET_WIDTH / 2}
-          ${handlePosRef.current[1].y + SOCKET_WIDTH / 2}`}
+          ${rightHandleStyle.x.get() + SOCKET_WIDTH / 2}
+          ${rightHandleStyle.y.get() + SOCKET_WIDTH / 2}`}
           stroke="red"
           strokeWidth={5}
           fill="none"
