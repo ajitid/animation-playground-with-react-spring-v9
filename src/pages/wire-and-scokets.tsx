@@ -38,6 +38,8 @@ const leftSockets = ["all audio", "this app", "calls"];
 const rightSockets = ["iPhone speaker", "george's AirPods", "kitchen", "other devices"];
 
 export const WireAndSockets = () => {
+  const [isConnected, setIsConnected] = useState(true);
+
   const leftSocketRefs = useRef<(HTMLDivElement | null)[]>([]);
   const rightSocketRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -97,10 +99,17 @@ export const WireAndSockets = () => {
           );
         }
       }
+
+      if (first) {
+        setIsConnected(false);
+      } else if (last) {
+        setIsConnected(true);
+      }
     },
     {
       target: leftHandleRef,
       from: () => [leftHandleStyle.x.get(), leftHandleStyle.y.get()],
+      filterTaps: true,
     }
   );
   const rightHandleRef = useRef<HTMLDivElement>(null);
@@ -138,10 +147,17 @@ export const WireAndSockets = () => {
           }
         }
       }
+
+      if (first) {
+        setIsConnected(false);
+      } else if (last) {
+        setIsConnected(true);
+      }
     },
     {
       target: rightHandleRef,
       from: () => [rightHandleStyle.x.get(), rightHandleStyle.y.get()],
+      filterTaps: true,
     }
   );
 
@@ -168,8 +184,8 @@ export const WireAndSockets = () => {
   // for debugging: control point (the point determines what curve would be drawn) TODO remove
   const cirleRef = useRef<SVGCircleElement>(null);
 
-  function calculateDecline(immediate = false) {
-    const decline = slackDecline(
+  const getSlackDecline = () =>
+    _getSlackDecline(
       {
         x: leftHandleStyle.x.get() + SOCKET_WIDTH / 2,
         y: leftHandleStyle.y.get() + SOCKET_WIDTH / 2,
@@ -180,10 +196,14 @@ export const WireAndSockets = () => {
       },
       slackLength
     );
+  const getMidpointX = () =>
+    (leftHandleStyle.x.get() + rightHandleStyle.x.get()) / 2 + SOCKET_WIDTH / 2;
+  const getMidpointY = () =>
+    (leftHandleStyle.y.get() + rightHandleStyle.y.get()) / 2 + getSlackDecline() + SOCKET_WIDTH / 2;
 
-    const midpointX = (leftHandleStyle.x.get() + rightHandleStyle.x.get()) / 2 + SOCKET_WIDTH / 2;
-    const midpointY =
-      (leftHandleStyle.y.get() + rightHandleStyle.y.get()) / 2 + decline + SOCKET_WIDTH / 2;
+  function calculateDecline(immediate = false) {
+    const midpointX = getMidpointX();
+    const midpointY = getMidpointY();
     anim.start({
       x: midpointX,
       y: midpointY,
@@ -301,16 +321,15 @@ export const WireAndSockets = () => {
           ${leftHandleStyle.x.get() + SOCKET_WIDTH / 2} 
           ${leftHandleStyle.y.get() + SOCKET_WIDTH / 2} 
           Q 
-          ${(leftHandleStyle.x.get() + rightHandleStyle.x.get()) / 2 + SOCKET_WIDTH / 2} 
-          ${
-            (leftHandleStyle.y.get() + rightHandleStyle.y.get()) / 2 + SOCKET_WIDTH / 2
-            /*  no need to add decline here as this would be overwritten anyway */
-          }
+          ${getMidpointX()} ${getMidpointY()}
           ${rightHandleStyle.x.get() + SOCKET_WIDTH / 2}
           ${rightHandleStyle.y.get() + SOCKET_WIDTH / 2}`}
           strokeWidth={5}
           fill="none"
-          className={cn("transition-colors ease-in-out stroke-gray-500", true && "stroke-pink-600")}
+          className={cn(
+            "transition-colors ease-in-out stroke-gray-500",
+            isConnected && "stroke-pink-600"
+          )}
         />
         {/* control point  TODO remove */}
         <circle
@@ -342,7 +361,7 @@ const Socket = forwardRef<HTMLDivElement>((_, ref) => {
   );
 });
 
-const slackDecline = (point1: Point2D, point2: Point2D, slackLength: number) => {
+const _getSlackDecline = (point1: Point2D, point2: Point2D, slackLength: number) => {
   const d = slackLength - distance(point1, point2);
   return Math.max(Math.min(slackLength, d), 0);
 };
