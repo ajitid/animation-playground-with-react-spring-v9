@@ -24,6 +24,8 @@ import { clamp2D } from "@/uff/clamp2d";
     ref. https://codesandbox.io/s/framer-motion-imperative-animation-controls-44mgz?file=/src/index.tsx:532-707
     and I would need a functon in `config` for stiff because I'd only need stiff anim along y-axis as it has the decline, and not on x-axis
   - We need to render shadow of the rope which suppposed has slightly larger decline. Refer to https://twitter.com/aashudubey_ad/status/1571250425772544000
+  - Better handle styling https://twitter.com/GK3/status/1545073404289552384?s=20&t=GaFMgw7-_phqSgkwUmvu7Q
+  - scale up handle while dragging
 */
 
 const SOCKET_WIDTH = 32;
@@ -271,7 +273,7 @@ export const WireAndSockets = () => {
   return (
     <DefaultLayout className={cn("cursor-touch select-none")}>
       <div className="min-h-screen grid place-items-center pb-32 bg-slate-800">
-        <div className="w-[540px] grid grid-cols-2 rounded bg-slate-400 gap-28">
+        <div className="w-[520px] grid grid-cols-2 rounded bg-slate-400 gap-24 py-2">
           <ul>
             {leftSockets.map((socket, i) => (
               <Item key={i}>
@@ -304,14 +306,18 @@ export const WireAndSockets = () => {
         data-id="handle-left"
         ref={leftHandleRef}
         style={leftHandleStyle}
-        className={`${socketDimensionClassName} bg-pink-300 rounded-full fixed z-20 top-0 left-0 touch-none`}
-      />
+        className={`${socketDimensionClassName} bg-slate-800 p-1 rounded-full fixed z-20 top-0 left-0 touch-none`}
+      >
+        <div className={`w-full h-full bg-slate-600 rounded-full`} />
+      </a.div>
       <a.div
         data-id="handle-right"
         ref={rightHandleRef}
         style={rightHandleStyle}
-        className={`${socketDimensionClassName} bg-violet-300 rounded-full fixed z-20 top-0 left-0 touch-none`}
-      />
+        className={`${socketDimensionClassName} bg-slate-800 p-1 rounded-full fixed z-20 top-0 left-0 touch-none`}
+      >
+        <div className={`w-full h-full bg-slate-600 rounded-full`} />
+      </a.div>
       <svg className="fixed top-0 left-0 z-10 w-full h-full">
         <path
           ref={ropeRef}
@@ -326,7 +332,7 @@ export const WireAndSockets = () => {
           fill="none"
           className={cn(
             "transition-colors ease-in-out stroke-gray-500",
-            isConnected && "stroke-pink-600"
+            isConnected && "stroke-sky-900"
           )}
         />
         {/* for debugging: control point (the point that determines what curve would be drawn) */}
@@ -353,9 +359,7 @@ const Item = forwardRef<HTMLLIElement, WC>((props, ref) => {
 
 const Socket = forwardRef<HTMLDivElement>((_, ref) => {
   return (
-    <div className="shrink-0 p-1 bg-slate-500 grid place-items-center rounded-full">
-      <div ref={ref} className={`${socketDimensionClassName} rounded-full bg-slate-100`} />
-    </div>
+    <div ref={ref} className={`${socketDimensionClassName} shrink-0 rounded-full bg-slate-100`} />
   );
 });
 
