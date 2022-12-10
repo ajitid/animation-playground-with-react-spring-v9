@@ -7,7 +7,7 @@ import { FC, WC } from "@/shared/types";
 import { distance } from "@/uff/distance";
 import {} from "@heroicons/react/24/outline";
 import useMeasure from "react-use-measure";
-import { a } from "@react-spring/web";
+import { a, config, SpringConfig } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 import cn from "clsx";
 
@@ -19,6 +19,11 @@ const SOCKET_WIDTH = 32;
 const socketDimensionClassName = `w-[32px] h-[32px]`;
 
 const debug = false;
+
+const ropeSpringConfig = {
+  frequency: 0.4,
+  damping: 0.4,
+};
 
 export const WireAndSockets = () => {
   const [topLeftSocketMeasureRefFn, topLeftSocketMeasure] = useMeasure();
@@ -70,6 +75,7 @@ export const WireAndSockets = () => {
         }`
       );
     },
+    config: ropeSpringConfig,
   }));
 
   // for debugging: control point (the point determines what curve would be drawn) TODO remove
@@ -102,8 +108,14 @@ export const WireAndSockets = () => {
       (handlePosRef.current[0].x + handlePosRef.current[1].x) / 2 + SOCKET_WIDTH / 2;
     const midpointY =
       (handlePosRef.current[0].y + handlePosRef.current[1].y) / 2 + decline + SOCKET_WIDTH / 2;
-    // TODO if decline is 0 make a stiff anim, ref. https://codesandbox.io/s/framer-motion-imperative-animation-controls-44mgz?file=/src/index.tsx:532-707
-    anim.start({ x: midpointX, y: midpointY });
+    anim.start({
+      x: midpointX,
+      y: midpointY,
+      // TODO if decline is 0 make a stiff anim, ref. https://codesandbox.io/s/framer-motion-imperative-animation-controls-44mgz?file=/src/index.tsx:532-707
+      // you would need a functon in `config` for stiff because you'd only need
+      // stiff anim along y-axis as it has the decline, not x
+      // config: decline === 0 ? stiffSpringConfig : ropeSpringConfig,
+    });
 
     if (debug && cirleRef.current) {
       cirleRef.current.setAttribute("cx", midpointX + "");
