@@ -5,7 +5,7 @@
 import { forwardRef, useRef, useEffect } from "react";
 import { FC, WC } from "@/shared/types";
 import { distance } from "@/uff/distance";
-import {} from "@heroicons/react/24/outline";
+import { FaceSmileIcon } from "@heroicons/react/24/outline";
 import useMeasure from "react-use-measure";
 import { a, config, SpringConfig } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
@@ -82,25 +82,7 @@ export const WireAndSockets = () => {
   // for debugging: control point (the point determines what curve would be drawn) TODO remove
   const cirleRef = useRef<SVGCircleElement>(null);
 
-  function updatePos(idx: 0 | 1 /* left or right socket */, [x, y]: [number, number]) {
-    const pos = handlePosRef.current[idx];
-    let handleEl = idx === 0 ? leftHandleRef.current : rightHandleRef.current;
-    if (!handleEl) return;
-
-    if (slackLength === 0) return;
-    const newPos = clamp2D(
-      slackLength,
-      { x, y },
-      idx === 0
-        ? { x: handlePosRef.current[1].x, y: handlePosRef.current[1].y }
-        : { x: handlePosRef.current[0].x, y: handlePosRef.current[0].y }
-    );
-    pos.x = newPos.x;
-    pos.y = newPos.y;
-    // Both translate3d and translate with Z-axis invoke GPU anim, ref: https://discord.com/channels/341919693348536320/716908973713784904/1049619845471273011
-    handleEl.style.setProperty("transform", `translate3d(${pos.x}px, ${pos.y}px, 0px)`);
-
-    // spring
+  function calculateDecline(immediate = false) {
     const decline = slackDecline(
       {
         x: handlePosRef.current[0].x + SOCKET_WIDTH / 2,
@@ -120,6 +102,7 @@ export const WireAndSockets = () => {
     anim.start({
       x: midpointX,
       y: midpointY,
+      immediate: immediate,
       // TODO if decline is 0 make a stiff anim, ref. https://codesandbox.io/s/framer-motion-imperative-animation-controls-44mgz?file=/src/index.tsx:532-707
       // you would need a functon in `config` for stiff because you'd only need
       // stiff anim along y-axis as it has the decline, not x
@@ -132,13 +115,40 @@ export const WireAndSockets = () => {
     }
   }
 
+  function updatePos(
+    idx: 0 | 1 /* left or right socket */,
+    [x, y]: [number, number],
+    immediateWithoutChecks = false
+  ) {
+    const pos = handlePosRef.current[idx];
+    let handleEl = idx === 0 ? leftHandleRef.current : rightHandleRef.current;
+    if (!handleEl) return;
+
+    let newPos = immediateWithoutChecks
+      ? { x, y }
+      : clamp2D(
+          slackLength,
+          { x, y },
+          idx === 0
+            ? { x: handlePosRef.current[1].x, y: handlePosRef.current[1].y }
+            : { x: handlePosRef.current[0].x, y: handlePosRef.current[0].y }
+        );
+    pos.x = newPos.x;
+    pos.y = newPos.y;
+    // Both translate3d and translate with Z-axis invoke GPU anim, ref: https://discord.com/channels/341919693348536320/716908973713784904/1049619845471273011
+    handleEl.style.setProperty("transform", `translate3d(${pos.x}px, ${pos.y}px, 0px)`);
+
+    calculateDecline(immediateWithoutChecks);
+  }
+
   useEffect(() => {
     const leftHandleEl = leftHandleRef.current;
     const rightHandleEl = rightHandleRef.current;
     if (!(leftHandleEl && rightHandleEl)) return;
+    if (slackLength === 0) return;
 
-    updatePos(0, [topLeftSocketMeasure.x, topLeftSocketMeasure.y]);
-    updatePos(1, [bottomRightSocketMeasure.x, bottomRightSocketMeasure.y]);
+    updatePos(0, [topLeftSocketMeasure.x, topLeftSocketMeasure.y], true);
+    updatePos(1, [bottomRightSocketMeasure.x, bottomRightSocketMeasure.y], true);
   }, [slackLength]);
 
   return (
@@ -195,7 +205,7 @@ export const WireAndSockets = () => {
         ref={rightHandleRef}
         className={`${socketDimensionClassName} bg-violet-300 rounded-full fixed z-20 top-0 left-0 touch-none`}
       ></div>
-      <svg className="fixed top-0 left-0 z-10 w-full h-full bg-black">
+      <svg className="fixed top-0 left-0 z-10 w-full h-full">
         <path
           ref={ropeRef}
           d={`M 
@@ -211,6 +221,7 @@ export const WireAndSockets = () => {
           ${handlePosRef.current[1].y + SOCKET_WIDTH / 2}`}
           stroke="red"
           strokeWidth={5}
+          fill="none"
         />
         {/* control point  TODO remove */}
         <circle
@@ -228,7 +239,7 @@ export const WireAndSockets = () => {
 
 const Item = forwardRef<HTMLLIElement, WC>((props, ref) => {
   return (
-    <li ref={ref} className="px-4 py-3 flex items-center">
+    <li ref={ref} className="px-4 py-2 flex items-center">
       {props.children}
     </li>
   );
