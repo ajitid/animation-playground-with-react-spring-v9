@@ -1,17 +1,23 @@
 // Inspiration: https://twitter.com/jmtrivedi/status/1521190109617410048
 // Draggable list code taken from here: https://codesandbox.io/s/github/pmndrs/react-spring/tree/master/demo/src/sandboxes/draggable-list?file=/src/App.tsx:877-1033
 
+/*
+  TODO This doesn't replicates sombero properly. Ref. https://twitter.com/ajitid/status/1601826603742351361?s=20&t=gQ0VGxLJEX1TrWWcd3Ws8g
+  Also, use this:
+  import { useControls } from "leva";
+  ^ do note that out of focus is needed when using text input
+*/
+
 import { DefaultLayout } from "@/default-layout";
 import { noop } from "@/shared/utils";
 import { clamp } from "@/uff/clamp";
-import { moveArrayItem } from "@/uff/moveArrayItem";
+import { moveArrayItem } from "@/uff/move-array-item";
 import { useSprings, a } from "@react-spring/web";
 import type { useSpring } from "@react-spring/web";
 import { raf } from "@react-spring/rafz";
 import { useDrag } from "@use-gesture/react";
 import { useEffect, useRef } from "react";
 import { to } from "@/uff/to";
-import { useControls } from "leva";
 
 const items = [
   "🥝 Groceries",

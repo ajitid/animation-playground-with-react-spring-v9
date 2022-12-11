@@ -45,7 +45,7 @@ const router = createBrowserRouter([
             <PageLink text="A connection with a wire and sockets" link="wire-and-sockets" />
           </li>
           <li>
-            <PageLink text="A list with ripple effect" link="ripple-list" />
+            <PageLink text="[FIXME] A list with ripple effect" link="ripple-list" />
           </li>
         </ul>
       </div>

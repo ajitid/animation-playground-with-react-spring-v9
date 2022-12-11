@@ -1,6 +1,6 @@
 import { angle } from "./angle";
 import { distance } from "./distance";
-import { pointFromVector } from "./pointFromVector";
+import { pointFromVector } from "./point-from-vector";
 import { Point2D } from "./types";
 
 // there is this another impl. but I think it would work fine with magnitudes
