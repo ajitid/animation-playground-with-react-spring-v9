@@ -50,7 +50,7 @@ export const FluidSomberoList = () => {
                 {...bind(i)}
                 key={i}
                 // add backdrop opacity
-                className="py-3 select-none absolute touch-none"
+                className="py-3 px-2 select-none absolute touch-none w-full rounded-md transition-colors active:bg-blue-200 active:border-2 active:border-sky-600"
                 style={{
                   zIndex,
                   y,
@@ -77,10 +77,12 @@ const updateSpring =
     done: (originalIndex: number) => void = noop
   ) =>
   (index: number): Parameters<typeof useSpring>[0] => {
+    let isDoneFired = false;
+
     return active && index === originalIndex
       ? {
           y: curIndex * ITEM_HEIGHT + y,
-          scale: 1.1,
+          scale: 1.04,
           zIndex: 1,
           immediate: (key) => key === "y" || key === "zIndex",
         }
@@ -90,8 +92,11 @@ const updateSpring =
           scale: 1,
           zIndex: 0,
           immediate: false,
-          onRest: () => {
-            done(index);
+          onChange(v) {
+            if (Math.abs(order.indexOf(index) * ITEM_HEIGHT - v.value.y) < 5 && !isDoneFired) {
+              isDoneFired = true;
+              done(index);
+            }
           },
         }
       : {
@@ -124,12 +129,14 @@ const useDraggable = (items: string[]) => {
         // you'd need https://www.desmos.com/calculator to visualize all this
         //
         // TL;DR 2.5 is chosen because at 3 sombrero stars touching x-axis
-        // and farCount coeff. (0.7) is small because that moves the whole graph towards neg. x-axis
-        // i.e. increasing it would make the effect between the items more pronounced but would reduce the spread
+        // and farCount coeff. (the constant to which farCount is multiplied below) is small
+        // because that moves the whole graph towards neg. x-axis i.e. increasing it would make
+        //  the effect between the items more pronounced but would also reduce the spread of the effect through items.
+        // Also try playing with interpolated `out` range `const scale = to(...`
         const v = (t / T) * 2.5 + farCount * 0.7;
         const intensity = Math.sin(v) / v;
 
-        const scale = to([0, 1], [0.94, 0.7], clamp(0, 1, intensity));
+        const scale = to([0, 1], [0.94, 0.82], clamp(0, 1, intensity));
 
         return {
           scale,
