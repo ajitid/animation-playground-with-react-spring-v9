@@ -5,7 +5,7 @@ import { createBrowserRouter, RouterProvider, Link } from "react-router-dom";
 import "./main.css";
 
 import { BB10TextTransition } from "./pages/bb10-text-transition";
-import { FluidSomberoList } from "./pages/fluid-sombero-list";
+import { FluidSombreroList } from "./pages/fluid-sombrero-list";
 import { HtcHd2HomeDock } from "./pages/htc-hd2-home-dock";
 import { ListItemTransition } from "./pages/list-item-transition";
 import { WireAndSockets } from "./pages/wire-and-scokets";
@@ -69,7 +69,7 @@ const router = createBrowserRouter([
   },
   {
     path: "ripple-list",
-    element: <FluidSomberoList />,
+    element: <FluidSombreroList />,
   },
 ]);
 

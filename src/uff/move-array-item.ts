@@ -1,5 +1,5 @@
 // taken from https://github.com/granteagon/move/blob/master/src/index.js
-// orginally for fluid-sombero-list
+// orginally for fluid-sombrero-list
 export function moveArrayItem<T>(array: T[], fromIndex: number, toIndex: number) {
   /* #move - Moves an array item from one position in an array to another.
      Note: This is a pure function so a new array will be returned, instead

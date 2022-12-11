@@ -2,7 +2,7 @@
 // Draggable list code taken from here: https://codesandbox.io/s/github/pmndrs/react-spring/tree/master/demo/src/sandboxes/draggable-list?file=/src/App.tsx:877-1033
 
 /*
-  TODO This doesn't replicates sombero properly. Ref. https://twitter.com/ajitid/status/1601826603742351361?s=20&t=gQ0VGxLJEX1TrWWcd3Ws8g
+  TODO This doesn't replicates sombrero properly. Ref. https://twitter.com/ajitid/status/1601826603742351361?s=20&t=gQ0VGxLJEX1TrWWcd3Ws8g
   Also, use this:
   import { useControls } from "leva";
   ^ do note that out of focus is needed when using text input
@@ -34,12 +34,12 @@ const items = [
   TODO
   - fix somrero name in filenames and in code
   - flick anim (project/deceleration rate)
-  - better sombero https://twitter.com/_chenglou/status/1521230129019588608?s=20&t=2Jk69IYFKO6DH_sZf62-QA
+  - better sombrero https://twitter.com/_chenglou/status/1521230129019588608?s=20&t=2Jk69IYFKO6DH_sZf62-QA
 */
 
 const ITEM_HEIGHT = 24 + /* padding */ 12 * 2 + /* border */ 2 * 2;
 
-export const FluidSomberoList = () => {
+export const FluidSombreroList = () => {
   const { bind, springs } = useDraggable(items);
 
   return (
@@ -47,7 +47,7 @@ export const FluidSomberoList = () => {
       <div className="w-[400px] h-[650px] border rounded-md bg-white drop-shadow-xl py-3 px-4 overflow-hidden">
         <h1 className="mb-1 text-2xl">To-Do List</h1>
         <p className="mb-2 text-gray-600 text-sm">
-          Drag and drop an item to see a ripple (sombero) effect.
+          Drag and drop an item to see a ripple (sombrero) effect.
         </p>
         <ul className="relative">
           {springs.map(({ zIndex, y, scale }, i) => {
@@ -121,6 +121,7 @@ const useDraggable = (items: string[]) => {
   const done = (originOriginalIndex: number) => {
     let startTime: number | null = null; // this exists, otherwise would've used performance.now()
 
+    const T = 500;
     raf(() => {
       const now = raf.now();
       if (startTime === null) {
@@ -136,8 +137,9 @@ const useDraggable = (items: string[]) => {
         const curIndex = order.current.indexOf(orginalIndex);
         const farIndex = Math.abs(curIndex - originCurIndex);
 
+        const osc = Math.min(t / T, 1) * Math.PI;
         // you'd need https://www.desmos.com/calculator to visualize all this
-        const v = Math.PI + farIndex * Math.PI + (t / 1000) * 30;
+        const v = Math.PI + farIndex * Math.PI + osc * 3;
         const intensity = Math.sin(v) / v;
 
         const MAX_DEVIATION = 0.217;
@@ -149,11 +151,11 @@ const useDraggable = (items: string[]) => {
 
         return {
           scale,
-          delay: 10 * farIndex,
+          delay: 40 * farIndex,
         };
       });
 
-      if (now - startTime < 500) {
+      if (now - startTime < T) {
         return true;
       } else {
         api.start(() => ({ scale: 1 }));
