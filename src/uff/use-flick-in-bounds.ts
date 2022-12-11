@@ -96,6 +96,7 @@ export const useFlickInBounds = (initialPosition: Position = { x: "right", y: "b
       // check how we can use either above or below
       // rubberband: true
       // also, here's mention about down, read it https://github.com/pmndrs/use-gesture/issues/249
+      // Also Alex has rubberband clamp function created here: https://youtu.be/laPsceJ4tTY?t=703
       // TODO this was using vxvy in usedrag callback, not velocity earlier, see what could've changed
       // TODO we are using hasRanOnceRef here. Check how it works with react 18
     }

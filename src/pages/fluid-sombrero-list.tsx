@@ -43,7 +43,7 @@ export const FluidSombreroList = () => {
   const { bind, springs } = useDraggable(items);
 
   return (
-    <DefaultLayout className="pb-6 grid place-items-center bg-sky-50 cursor-touch">
+    <DefaultLayout className="pb-6 grid place-items-center bg-sky-50 cursor-touch select-none">
       <div className="w-[400px] h-[650px] border rounded-md bg-white drop-shadow-xl py-3 px-4 overflow-hidden">
         <h1 className="mb-1 text-2xl">To-Do List</h1>
         <p className="mb-2 text-gray-600 text-sm">
@@ -171,14 +171,11 @@ const useDraggable = (items: string[]) => {
         return {
           scale,
           delay: 42 * farIndex,
+          immediate: false,
         };
       });
 
-      if (now - startTime < T) {
-        return true;
-      } else {
-        api.start(() => ({ scale: 1 }));
-      }
+      return now - startTime < T;
     });
   };
 
