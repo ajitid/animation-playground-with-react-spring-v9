@@ -37,7 +37,7 @@ const items = [
   - better sombero https://twitter.com/_chenglou/status/1521230129019588608?s=20&t=2Jk69IYFKO6DH_sZf62-QA
 */
 
-const ITEM_HEIGHT = 24 + /* padding */ 12 * 2;
+const ITEM_HEIGHT = 24 + /* padding */ 12 * 2 + /* border */ 2 * 2;
 
 export const FluidSomberoList = () => {
   const { bind, springs } = useDraggable(items);
@@ -56,7 +56,7 @@ export const FluidSomberoList = () => {
                 {...bind(i)}
                 key={i}
                 // add backdrop opacity
-                className="py-3 px-2 select-none absolute touch-none w-full rounded-md transition-colors active:bg-blue-200 active:border-2 active:border-sky-600"
+                className="py-3 px-2 select-none absolute touch-none w-full rounded-md transition-colors active:bg-blue-200 border-2 border-transparent active:border-sky-600"
                 style={{
                   zIndex,
                   y,
@@ -119,37 +119,41 @@ const useDraggable = (items: string[]) => {
 
   // sombrero
   const done = (originOriginalIndex: number) => {
-    const startTime = raf.now(); // this exists, otherwise would've used performance.now()
-
-    const T = 400;
+    let startTime: number | null = null; // this exists, otherwise would've used performance.now()
 
     raf(() => {
       const now = raf.now();
+      if (startTime === null) {
+        // doing this is better than manually subtract framerate at `t`
+        // see https://twitter.com/_chenglou/status/1592801426090389505
+        // and https://twitter.com/_chenglou/status/1588050903868637184
+        startTime = now;
+      }
       const t = Math.round(now - startTime);
-      const originCurIndex = order.current.indexOf(originOriginalIndex);
 
+      const originCurIndex = order.current.indexOf(originOriginalIndex);
       api.start((orginalIndex) => {
         const curIndex = order.current.indexOf(orginalIndex);
-        const farCount = Math.abs(curIndex - originCurIndex);
+        const farIndex = Math.abs(curIndex - originCurIndex);
 
         // you'd need https://www.desmos.com/calculator to visualize all this
-        //
-        // TL;DR 2.5 is chosen because at 3 sombrero stars touching x-axis
-        // and farCount coeff. (the constant to which farCount is multiplied below) is small
-        // because that moves the whole graph towards neg. x-axis i.e. increasing it would make
-        //  the effect between the items more pronounced but would also reduce the spread of the effect through items.
-        // Also try playing with interpolated `out` range `const scale = to(...`
-        const v = (t / T) * 2.5 + farCount * 0.7;
+        const v = Math.PI + (t / 1000) * 30 + farIndex * 4.05;
         const intensity = Math.sin(v) / v;
 
-        const scale = to([0, 1], [0.94, 0.82], clamp(0, 1, Math.abs(intensity)));
+        const MAX_DEVIATION = 0.217;
+        const scale = to(
+          [-MAX_DEVIATION, MAX_DEVIATION],
+          [1 - MAX_DEVIATION, 1 + MAX_DEVIATION],
+          intensity
+        );
 
         return {
           scale,
+          delay: 10 * farIndex,
         };
       });
 
-      if (now - startTime < T) {
+      if (now - startTime < 500) {
         return true;
       } else {
         api.start(() => ({ scale: 1 }));
