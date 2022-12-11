@@ -143,10 +143,11 @@ const useDraggable = (items: string[]) => {
           // skip the (first) peak graph of the hat for all indices
           Math.PI +
           // variable offset:
-          // set start pos. of each item on the basis of how far it is from the item dropped
-          // you don't want this to be a multiplier of 2 (ie. farIndex * Math.PI * 2n),
-          // otherwise all items will oscillate in the same direction
-          farIndex * Math.PI +
+          // Set start pos. of each item on the basis of how far it is from the item dropped
+          // The farther it is, the less pronounced scale effect for it will be.
+          // We want this to be a multiplier of 2 (ie. farIndex * Math.PI * 2n),
+          // so that all the items move in conherence (all scale down at same time or scale up at same time).
+          farIndex * Math.PI * 2 +
           // wave progress:
           // tells how many ripples (crest or trough) it should animate withing the duration specified
           osc * 3;
@@ -154,7 +155,7 @@ const useDraggable = (items: string[]) => {
         const intensity = Math.sin(v) / v;
 
         // play with this to adjust how pronounced the effect/inensity you want to be
-        const deviationCoeff = 0.5;
+        const deviationCoeff = 0.6;
         const x = 1;
         // ^ This `1` could've been 9000, it wouldn't have mattered.
         const scale = to([-x, x], [1 - x * deviationCoeff, 1 + x * deviationCoeff], intensity);
