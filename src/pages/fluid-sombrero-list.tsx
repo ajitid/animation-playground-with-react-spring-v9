@@ -139,12 +139,15 @@ const useDraggable = (items: string[]) => {
 
         const osc = Math.min(t / T, 1) * Math.PI;
         const v =
+          // constant offset:
           // skip the (first) peak graph of the hat for all indices
           Math.PI +
+          // variable offset:
           // set start pos. of each item on the basis of how far it is from the item dropped
           // you don't want this to be a multiplier of 2 (ie. farIndex * Math.PI * 2n),
           // otherwise all items will oscillate in the same direction
           farIndex * Math.PI +
+          // wave progress:
           // tells how many ripples (crest or trough) it should animate withing the duration specified
           osc * 3;
         // you'd need https://www.desmos.com/calculator to visualize all this

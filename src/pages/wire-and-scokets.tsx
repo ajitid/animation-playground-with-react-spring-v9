@@ -282,33 +282,40 @@ export const WireAndSockets = () => {
   return (
     <DefaultLayout className={cn("cursor-touch select-none")}>
       <div className="min-h-screen grid place-items-center pb-32 bg-slate-800">
-        <div className="w-[520px] grid grid-cols-2 rounded bg-slate-400 gap-24 py-2">
-          <ul>
-            {leftSockets.map((socket, i) => (
-              <Item key={i}>
-                <span className="mr-3 flex-1">{socket}</span>
-                <Socket
-                  ref={(el) => {
-                    leftSocketRefs.current[i] = el;
-                    if (i === 0) topLeftSocketMeasureRefFn(el);
-                  }}
-                />
-              </Item>
-            ))}
-          </ul>
-          <ul>
-            {rightSockets.map((socket, i) => (
-              <Item key={i}>
-                <span className="mr-3 flex-1">{socket}</span>
-                <Socket
-                  ref={(el) => {
-                    rightSocketRefs.current[i] = el;
-                    if (i === rightSockets.length - 1) bottomRightSocketMeasureRefFn(el);
-                  }}
-                />
-              </Item>
-            ))}
-          </ul>
+        <div className="w-[520px] rounded bg-slate-400 py-2">
+          <div className="pl-3 mb-4 text-sm">
+            <div>Drag those circular handles and drop them into sockets.</div>
+            <div>Check source code for inspiration.</div>
+            <div>Looks ugly I know, will fix it soon.</div>
+          </div>
+          <div className="grid grid-cols-2 gap-24">
+            <ul>
+              {leftSockets.map((socket, i) => (
+                <Item key={i}>
+                  <span className="mr-3 flex-1">{socket}</span>
+                  <Socket
+                    ref={(el) => {
+                      leftSocketRefs.current[i] = el;
+                      if (i === 0) topLeftSocketMeasureRefFn(el);
+                    }}
+                  />
+                </Item>
+              ))}
+            </ul>
+            <ul>
+              {rightSockets.map((socket, i) => (
+                <Item key={i}>
+                  <span className="mr-3 flex-1">{socket}</span>
+                  <Socket
+                    ref={(el) => {
+                      rightSocketRefs.current[i] = el;
+                      if (i === rightSockets.length - 1) bottomRightSocketMeasureRefFn(el);
+                    }}
+                  />
+                </Item>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
       <a.div
@@ -368,7 +375,10 @@ const Item = forwardRef<HTMLLIElement, WC>((props, ref) => {
 
 const Socket = forwardRef<HTMLDivElement>((_, ref) => {
   return (
-    <div ref={ref} className={`${socketDimensionClassName} shrink-0 rounded-full bg-slate-100`} />
+    <div
+      ref={ref}
+      className={`${socketDimensionClassName} shrink-0 rounded-full bg-slate-200 shadow-inner shadow-slate-600`}
+    />
   );
 });
 
