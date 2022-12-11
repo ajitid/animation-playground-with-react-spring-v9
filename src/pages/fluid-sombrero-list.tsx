@@ -141,39 +141,40 @@ const useDraggable = (items: string[]) => {
         const curIndex = order.current.indexOf(orginalIndex);
         const farIndex = Math.abs(curIndex - originCurIndex);
 
-        const osc = Math.min(t / T, 1) * Math.PI;
+        const oscillationProgress = Math.min(t / T, 1) * Math.PI;
         const v =
-          // constant offset:
-          // skip the (first) peak graph of the hat for all indices
+          // Constant offset:
+          // Skip the (first) peak graph of the hat for all indices.
           Math.PI +
-          // variable offset:
-          // Set start pos. of each item on the basis of how far it is from the item dropped
+          // Variable offset:
+          // Set start pos. of each item on the basis of how far it is from the item dropped.
           // The farther it is, the less pronounced scale effect for it will be.
           // We want this to be a multiplier of 2 (ie. farIndex * Math.PI * 2n),
           // so that all the items move in conherence (all scale down at same time or scale up at same time).
           farIndex * Math.PI * 2 +
-          // wave progress:
-          // tells how many ripples (crest or trough) it should animate withing the duration specified
-          osc * 2;
+          // Wave length multiplier:
+          // Tells how many ripples (crest or trough) it should animate withing the duration specified.
+          // It is currently specified as `2`, which means it would a trough and a crest.
+          oscillationProgress * 2;
         // you'd need https://www.desmos.com/calculator to visualize all this
         const intensity = Math.sin(v) / v;
 
-        const deviationCoeff =
-          // play with this to adjust how pronounced the effect you want to be
-          // esp. on the item which has been dragged and dropped
-          0.44 +
+        const deviation =
           /*
-          That farther we go the less discernable the effect is, so we slightly amp it up for those ends. 
-          This make the animation feel more lively.
-         */
-          farIndex * 0.05;
-        const x = 1;
-        // ^ This `1` could've been 9000, it wouldn't have mattered.
-        const scale = to([-x, x], [1 - x * deviationCoeff, 1 + x * deviationCoeff], intensity);
-        // ^ scale: 1 is what we want at the end of anim, that's why `1` has been used here
+            Play with this to adjust how pronounced the effect you want to be
+            esp. on the item which has been dragged and dropped
+          */
+          0.22 +
+          /*
+            Farther we go the less discernable the effect is, so we slightly amp the deviation up for those ends.
+            This make the animation feel more lively.
+          */
+          farIndex * 0.06;
+
+        const scale = to([-1, 1], [1 - deviation, 1 + deviation], intensity);
 
         return {
-          scale,
+          scale: scale,
           delay: 42 * farIndex,
           immediate: true,
         };
