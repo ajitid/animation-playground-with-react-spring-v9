@@ -3,7 +3,10 @@
 
 /*
   TODO 
-  For the dragged item, on iOS, sometimes scale (I believe, and no Y) snaps to a smaller value thus, breaks the smooth animation flow. 
+  For the dragged item and the items neighboring where it lands, on iOS, sometimes scale (I believe, and no Y) 
+  snaps to a smaller value, thus breaking the smooth animation. It seems to be happening when the anim reaches
+  the trough (item is scaled down to max) and then starts to come up. I logged the values in Chrome Linux, 
+  but couldn't see a sharp change. 
 
   On Linux:
   - In Chrome, if scale < 1, it feels like sudden small reduction in font size
