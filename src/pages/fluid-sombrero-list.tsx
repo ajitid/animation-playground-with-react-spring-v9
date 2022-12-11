@@ -138,16 +138,24 @@ const useDraggable = (items: string[]) => {
         const farIndex = Math.abs(curIndex - originCurIndex);
 
         const osc = Math.min(t / T, 1) * Math.PI;
+        const v =
+          // skip the (first) peak graph of the hat for all indices
+          Math.PI +
+          // set start pos. of each item on the basis of how far it is from the item dropped
+          // you don't want this to be a multiplier of 2 (ie. farIndex * Math.PI * 2n),
+          // otherwise all items will oscillate in the same direction
+          farIndex * Math.PI +
+          // tells how many ripples (crest or trough) it should animate withing the duration specified
+          osc * 3;
         // you'd need https://www.desmos.com/calculator to visualize all this
-        const v = Math.PI + farIndex * Math.PI + osc * 3;
         const intensity = Math.sin(v) / v;
 
-        const MAX_DEVIATION = 0.217;
-        const scale = to(
-          [-MAX_DEVIATION, MAX_DEVIATION],
-          [1 - MAX_DEVIATION, 1 + MAX_DEVIATION],
-          intensity
-        );
+        // play with this to adjust how pronounced the effect/inensity you want to be
+        const deviationCoeff = 0.6;
+        const x = 4;
+        // ^ That `4` could've been 9000, it wouldn't have mattered.
+        const scale = to([-x, x], [1 - x * deviationCoeff, 1 + x * deviationCoeff], intensity);
+        // ^ scale: 1 is what we want at the end of anim, that's why `1` has been used here
 
         return {
           scale,
