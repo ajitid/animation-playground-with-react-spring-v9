@@ -9,9 +9,9 @@ import { useSprings, a } from "@react-spring/web";
 import type { useSpring } from "@react-spring/web";
 import { raf } from "@react-spring/rafz";
 import { useDrag } from "@use-gesture/react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { to } from "@/uff/to";
-import { radiansToDegrees } from "@/uff/radiansToDegrees";
+import { useControls } from "leva";
 
 const items = [
   "🥝 Groceries",
@@ -76,7 +76,7 @@ const updateSpring =
     last = false,
     done: (originalIndex: number) => void = noop
   ) =>
-  (index: number, x: any): Parameters<typeof useSpring>[0] => {
+  (index: number): Parameters<typeof useSpring>[0] => {
     return active && index === originalIndex
       ? {
           y: curIndex * ITEM_HEIGHT + y,
@@ -110,48 +110,33 @@ const useDraggable = (items: string[]) => {
   const done = (originOriginalIndex: number) => {
     const startTime = raf.now(); // this exists, otherwise would've used performance.now()
 
-    let dampingCoeff = 1;
+    const T = 400;
+
     raf(() => {
       const now = raf.now();
+      const t = Math.round(now - startTime);
       const originCurIndex = order.current.indexOf(originOriginalIndex);
 
       api.start((orginalIndex) => {
         const curIndex = order.current.indexOf(orginalIndex);
-        const distance = Math.abs(curIndex - originCurIndex) * ITEM_HEIGHT;
-        // const f = Math.sqrt(distance ** 2 + Math.round(now - startTime) ** 2);
-        const f = distance + Math.round(now - startTime);
-        // ref.
-        // https://twitter.com/jmtrivedi/status/1521233999330373632?s=20&t=elNJcQgto8sorSgTQ_FGdg
-        // https://octave.sourceforge.io/octave/function/sombrero.html (target
-        // dec. 11th 2022 or earlier on wayback machine if it isn't available)
-        const intensity = Math.sin(f) / f;
+        const farCount = Math.abs(curIndex - originCurIndex);
 
-        const scale = to(
-          clamp(Math.abs(intensity), 1 / 10 ** 7, 1),
-          [1 / 10 ** 7, 1],
-          [0.94, 1.04]
-        );
+        // you'd need https://www.desmos.com/calculator to visualize all this
+        //
+        // TL;DR 2.5 is chosen because at 3 sombrero stars touching x-axis
+        // and farCount coeff. (0.7) is small because that moves the whole graph towards neg. x-axis
+        // i.e. increasing it would make the effect between the items more pronounced but would reduce the spread
+        const v = (t / T) * 2.5 + farCount * 0.7;
+        const intensity = Math.sin(v) / v;
 
-        // intensity *= 100;
-        // intensity *= dampingCoeff;
-
-        if (curIndex === 0) {
-          console.log("dbg:", radiansToDegrees(Math.sin(f)) / f);
-          // console.log("dbg:", "00x", scale);
-        }
-        if (curIndex === 4) {
-          // console.log("dbg:", "44x", scale);
-        }
+        const scale = to([0, 1], [0.94, 0.7], clamp(0, 1, intensity));
 
         return {
           scale,
-          // immediate: true,
         };
       });
 
-      // TODO it increases th value when multiplied somehow
-      dampingCoeff *= 0.9 ** 2;
-      if (now - startTime < 400) {
+      if (now - startTime < T) {
         return true;
       } else {
         api.start(() => ({ scale: 1 }));
@@ -159,17 +144,20 @@ const useDraggable = (items: string[]) => {
     });
   };
 
-  const bind = useDrag(({ args: [originalIndex], active, movement: [, y], last }) => {
-    const curIndex = order.current.indexOf(originalIndex);
-    const curRow = clamp(
-      Math.round((curIndex * ITEM_HEIGHT + y) / ITEM_HEIGHT),
-      0,
-      items.length - 1
-    );
-    const newOrder = moveArrayItem(order.current, curIndex, curRow);
-    api.start(updateSpring(newOrder, active, originalIndex, curIndex, y, last, done)); // Feed springs new style data, they'll animate the view without causing a single render
-    if (!active) order.current = newOrder;
-  });
+  const bind = useDrag(
+    ({ args: [originalIndex], active, movement: [, y], last }) => {
+      const curIndex = order.current.indexOf(originalIndex);
+      const curRow = clamp(
+        0,
+        items.length - 1,
+        Math.round((curIndex * ITEM_HEIGHT + y) / ITEM_HEIGHT)
+      );
+      const newOrder = moveArrayItem(order.current, curIndex, curRow);
+      api.start(updateSpring(newOrder, active, originalIndex, curIndex, y, last, done)); // Feed springs new style data, they'll animate the view without causing a single render
+      if (!active) order.current = newOrder;
+    },
+    { filterTaps: true }
+  );
 
   return { springs, bind };
 };
