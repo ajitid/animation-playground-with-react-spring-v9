@@ -137,7 +137,7 @@ const useDraggable = (items: string[]) => {
         const farIndex = Math.abs(curIndex - originCurIndex);
 
         // you'd need https://www.desmos.com/calculator to visualize all this
-        const v = Math.PI + (t / 1000) * 30 + farIndex * 4.05;
+        const v = Math.PI + farIndex * Math.PI + (t / 1000) * 30;
         const intensity = Math.sin(v) / v;
 
         const MAX_DEVIATION = 0.217;
