@@ -151,9 +151,9 @@ const useDraggable = (items: string[]) => {
         const intensity = Math.sin(v) / v;
 
         // play with this to adjust how pronounced the effect/inensity you want to be
-        const deviationCoeff = 0.6;
-        const x = 4;
-        // ^ That `4` could've been 9000, it wouldn't have mattered.
+        const deviationCoeff = 0.5;
+        const x = 1;
+        // ^ This `1` could've been 9000, it wouldn't have mattered.
         const scale = to([-x, x], [1 - x * deviationCoeff, 1 + x * deviationCoeff], intensity);
         // ^ scale: 1 is what we want at the end of anim, that's why `1` has been used here
 
