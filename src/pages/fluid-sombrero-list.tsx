@@ -99,7 +99,7 @@ const updateSpring =
           zIndex: 0,
           immediate: false,
           onChange(v) {
-            if (Math.abs(order.indexOf(index) * ITEM_HEIGHT - v.value.y) < 5 && !isDoneFired) {
+            if (Math.abs(order.indexOf(index) * ITEM_HEIGHT - v.value.y) < 8 && !isDoneFired) {
               isDoneFired = true;
               done(index);
             }
@@ -121,7 +121,7 @@ const useDraggable = (items: string[]) => {
   const done = (originOriginalIndex: number) => {
     let startTime: number | null = null; // this exists, otherwise would've used performance.now()
 
-    const T = 500;
+    const T = 600;
     raf(() => {
       const now = raf.now();
       if (startTime === null) {
@@ -150,12 +150,19 @@ const useDraggable = (items: string[]) => {
           farIndex * Math.PI * 2 +
           // wave progress:
           // tells how many ripples (crest or trough) it should animate withing the duration specified
-          osc * 3;
+          osc * 2;
         // you'd need https://www.desmos.com/calculator to visualize all this
         const intensity = Math.sin(v) / v;
 
-        // play with this to adjust how pronounced the effect/inensity you want to be
-        const deviationCoeff = 0.6;
+        const deviationCoeff =
+          // play with this to adjust how pronounced the effect you want to be
+          // esp. on the item which has been dragged and dropped
+          0.66 +
+          /*
+          That farther we go the less discernable the effect is, so we slightly amp it up for those ends. 
+          This make the animation feel more lively.
+         */
+          farIndex * 0.33;
         const x = 1;
         // ^ This `1` could've been 9000, it wouldn't have mattered.
         const scale = to([-x, x], [1 - x * deviationCoeff, 1 + x * deviationCoeff], intensity);
@@ -163,7 +170,7 @@ const useDraggable = (items: string[]) => {
 
         return {
           scale,
-          delay: 40 * farIndex,
+          delay: 42 * farIndex,
         };
       });
 
