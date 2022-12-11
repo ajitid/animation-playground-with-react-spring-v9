@@ -2,10 +2,14 @@
 // Draggable list code taken from here: https://codesandbox.io/s/github/pmndrs/react-spring/tree/master/demo/src/sandboxes/draggable-list?file=/src/App.tsx:877-1033
 
 /*
-  TODO This doesn't replicates sombrero properly. Ref. https://twitter.com/ajitid/status/1601826603742351361?s=20&t=gQ0VGxLJEX1TrWWcd3Ws8g
-  Also, use this:
-  import { useControls } from "leva";
-  ^ do note that out of focus is needed when using text input
+  TODO 
+  For the dragged item, on iOS, sometimes scale (I believe, and no Y) snaps to a smaller value thus, breaks the smooth animation flow. 
+
+  On Linux:
+  - In Chrome, if scale < 1, it feels like sudden small reduction in font size
+  - In Firefox, the scaling is not smooth, so it provides a very rough/grainy experience during animation
+
+  Popmotion exports a smooth fn. I think I'd need it solve these issues.
 */
 
 import { DefaultLayout } from "@/default-layout";
@@ -121,7 +125,7 @@ const useDraggable = (items: string[]) => {
   const done = (originOriginalIndex: number) => {
     let startTime: number | null = null; // this exists, otherwise would've used performance.now()
 
-    const T = 600;
+    const T = 640;
     raf(() => {
       const now = raf.now();
       if (startTime === null) {
@@ -157,12 +161,12 @@ const useDraggable = (items: string[]) => {
         const deviationCoeff =
           // play with this to adjust how pronounced the effect you want to be
           // esp. on the item which has been dragged and dropped
-          0.66 +
+          0.44 +
           /*
           That farther we go the less discernable the effect is, so we slightly amp it up for those ends. 
           This make the animation feel more lively.
          */
-          farIndex * 0.33;
+          farIndex * 0.05;
         const x = 1;
         // ^ This `1` could've been 9000, it wouldn't have mattered.
         const scale = to([-x, x], [1 - x * deviationCoeff, 1 + x * deviationCoeff], intensity);
@@ -171,7 +175,7 @@ const useDraggable = (items: string[]) => {
         return {
           scale,
           delay: 42 * farIndex,
-          immediate: false,
+          immediate: true,
         };
       });
 
