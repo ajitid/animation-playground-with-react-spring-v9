@@ -136,7 +136,7 @@ const useDraggable = (items: string[]) => {
         const v = (t / T) * 2.5 + farCount * 0.7;
         const intensity = Math.sin(v) / v;
 
-        const scale = to([0, 1], [0.94, 0.82], clamp(0, 1, intensity));
+        const scale = to([0, 1], [0.94, 0.82], clamp(0, 1, Math.abs(intensity)));
 
         return {
           scale,
