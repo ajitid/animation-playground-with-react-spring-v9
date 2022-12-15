@@ -126,7 +126,7 @@ const useDraggable = (items: string[]) => {
 
   // sombrero
   const done = (originOriginalIndex: number) => {
-    let startTime: number | null = null; // this exists, otherwise would've used performance.now()
+    let startTime: number | null = null;
 
     const T = 640;
     raf(() => {
