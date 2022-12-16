@@ -8,7 +8,7 @@ import { BB10TextTransition } from "./pages/bb10-text-transition";
 import { FluidSombreroList } from "./pages/fluid-sombrero-list";
 import { HtcHd2HomeDock } from "./pages/htc-hd2-home-dock";
 import { ListItemTransition } from "./pages/list-item-transition";
-import { WireAndSockets } from "./pages/wire-and-scokets";
+import { WireAndSockets } from "./pages/wire-and-sockets";
 
 const PageLink = (props: { text: string; link: string }) => (
   <Link to={props.link} className="text-blue-700">
