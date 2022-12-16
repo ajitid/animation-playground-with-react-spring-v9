@@ -31,7 +31,7 @@ export const useVelocity = <T>(springValue: FrameValue<T>) => {
     let previousValue = springValue.get();
     let previousTime = Math.round(raf.now());
 
-    const fn = (ev: FrameValue.Event<T>) => {
+    const updateVelocity = (ev: FrameValue.Event<T>) => {
       const value = springValue.get();
       const time = Math.round(raf.now());
 
@@ -66,9 +66,9 @@ export const useVelocity = <T>(springValue: FrameValue<T>) => {
       }
     };
 
-    addFluidObserver(springValue, fn);
+    addFluidObserver(springValue, updateVelocity);
     return () => {
-      removeFluidObserver(springValue, fn);
+      removeFluidObserver(springValue, updateVelocity);
       velocity.set(0);
     };
   }, [springValue, velocity]);
