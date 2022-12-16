@@ -22,15 +22,15 @@ https://www.framer.com/docs/use-velocity/#:~:text=(x)-,const%20xAcceleration%20%
 
 import { useEffect } from "react";
 import { useSpringValue } from "@react-spring/web";
-import type { FrameValue } from "@react-spring/web";
+import type { FrameValue, SpringUpdate } from "@react-spring/web";
 import { addFluidObserver, removeFluidObserver } from "@react-spring/shared";
 
 import { useRafInfo } from "./use-raf-info";
 
-export const useVelocity = <T>(springValue: FrameValue<T>) => {
+export const useVelocity = <T>(springValue: FrameValue<T>, springProps?: SpringUpdate<number>) => {
   const rafInfo = useRafInfo();
 
-  const velocity = useSpringValue<number>(0);
+  const velocity = useSpringValue<number>(0, springProps);
 
   useEffect(() => {
     let previousValue = springValue.get();
@@ -40,7 +40,18 @@ export const useVelocity = <T>(springValue: FrameValue<T>) => {
 
       const value = springValue.get();
 
-      if (typeof value !== "number" || typeof previousValue !== "number") {
+      /*
+        react-spring:
+        - for spring.start()
+          - plays ev.type = change with ev.idle = false
+          - and on end of anim runs ev.type = idle once
+        - for spring.set() 
+          - runs ev.type = change with ev.idle = true once 
+        We are inferring if `spring.set()` is used using used this way.
+      */
+      const isSetUsed = ev.type === "change" && ev.idle;
+
+      if (typeof value !== "number" || typeof previousValue !== "number" || isSetUsed) {
         previousValue = value;
         velocity.set(0);
         return;
