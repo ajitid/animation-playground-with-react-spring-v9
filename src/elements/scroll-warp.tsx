@@ -1,7 +1,7 @@
 // ref. https://twitter.com/austin_malerba/status/1539985492652990464
 // and https://twitter.com/austin_malerba/status/1598051841111371776
 
-import * as React from "react";
+import { useRef } from "react";
 import { a, useSpring, to, SpringValue } from "@react-spring/web";
 import { useId } from "react";
 
@@ -24,7 +24,20 @@ export const ScrollWarp = ({
 }: ScrollWarpProps) => {
   const id = useId();
 
+  /*
+    We need to remember what the last scroll direction is. Otherwise we would
+    see a jitter on the end of animation of +v → 0. This would happen because we
+    are suddenly changing the `transformOrigin` at 0 and not waiting for the
+    scale animation to finish. 
+  */
+  const lastScrollDirection = useRef(1);
   const transformOrigin = velocity.to((v) => {
+    if (v !== 0) {
+      lastScrollDirection.current = v > 0 ? 1 : -1;
+    } else {
+      v = lastScrollDirection.current;
+    }
+
     if (direction === "y") {
       return v > 0 ? "bottom center" : "top center";
     } else {
