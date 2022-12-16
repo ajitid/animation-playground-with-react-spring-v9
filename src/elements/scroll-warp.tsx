@@ -20,8 +20,8 @@ interface ScrollWarpProps extends React.HTMLProps<HTMLDivElement> {
 export const ScrollWarp = ({ children, direction = "y", ...otherProps }: ScrollWarpProps) => {
   const id = useId();
 
-  const { scrollX } = useScroll();
-  const velocity = useVelocity(scrollX);
+  const { scrollY } = useScroll();
+  const velocity = useVelocity(scrollY);
 
   const transformOrigin = velocity.to((v) => {
     if (direction === "y") {
