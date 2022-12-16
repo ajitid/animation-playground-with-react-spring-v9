@@ -1,14 +1,20 @@
 // directly taken from https://codesandbox.io/s/scrollwarp-ed7vht
 // other sandbox (not used, but for referring) https://codesandbox.io/s/scrollwarp-with-text-x8heqe?file=/src/App.tsx
 
+import { useScroll } from "@react-spring/web";
+
 import { DefaultLayout } from "@/default-layout";
 import { ScrollWarp } from "@/elements/scroll-warp";
+import { useVelocity } from "@/uff/use-velocity";
 
 export const ScrollWarpImages = () => {
+  const { scrollY } = useScroll();
+  const velocity = useVelocity(scrollY);
+
   return (
     <DefaultLayout className="grid gap-24 justify-center py-2">
       {photos.map((photo) => (
-        <ScrollWarp key={photo.id} className="w-96 h-80 block">
+        <ScrollWarp key={photo.id} velocity={velocity} className="w-96 h-80 block">
           <img
             className="h-full w-full object-cover"
             src={`https://picsum.photos/id/${photo.id}/600/800`}

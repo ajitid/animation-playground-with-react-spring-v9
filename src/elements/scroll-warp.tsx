@@ -2,10 +2,8 @@
 // and https://twitter.com/austin_malerba/status/1598051841111371776
 
 import * as React from "react";
-import { a, useScroll, useSpring, to } from "@react-spring/web";
+import { a, useSpring, to, SpringValue } from "@react-spring/web";
 import { useId } from "react";
-
-import { useVelocity } from "@/uff/use-velocity";
 
 const springConfig = {
   mass: 0.5,
@@ -15,13 +13,16 @@ const springConfig = {
 
 interface ScrollWarpProps extends React.HTMLProps<HTMLDivElement> {
   direction?: "x" | "y";
+  velocity: SpringValue;
 }
 
-export const ScrollWarp = ({ children, direction = "y", ...otherProps }: ScrollWarpProps) => {
+export const ScrollWarp = ({
+  children,
+  direction = "y",
+  velocity,
+  ...otherProps
+}: ScrollWarpProps) => {
   const id = useId();
-
-  const { scrollY } = useScroll();
-  const velocity = useVelocity(scrollY);
 
   const transformOrigin = velocity.to((v) => {
     if (direction === "y") {
