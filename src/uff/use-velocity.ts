@@ -73,7 +73,12 @@ export const useVelocity = <T>(springValue: FrameValue<T>, springProps?: SpringU
       removeFluidObserver(springValue, updateVelocity);
       velocity.set(0);
     };
-  }, [springValue, velocity]);
+  }, [
+    springValue,
+    // these won't change:
+    velocity,
+    rafInfo,
+  ]);
 
   return velocity;
 };
