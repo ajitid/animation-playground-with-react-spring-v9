@@ -8,6 +8,7 @@ import { BB10TextTransition } from "./pages/bb10-text-transition";
 import { FluidSombreroList } from "./pages/fluid-sombrero-list";
 import { HtcHd2HomeDock } from "./pages/htc-hd2-home-dock";
 import { ListItemTransition } from "./pages/list-item-transition";
+import { ScrollWarpImages } from "./pages/scroll-warp-images";
 import { WireAndSockets } from "./pages/wire-and-sockets";
 
 const PageLink = (props: { text: string; link: string }) => (
@@ -47,6 +48,9 @@ const router = createBrowserRouter([
           <li>
             <PageLink text="A list with ripple effect" link="ripple-list" />
           </li>
+          <li>
+            <PageLink text="Scroll warp" link="scroll-warp" />
+          </li>
         </ul>
       </div>
     ),
@@ -70,6 +74,10 @@ const router = createBrowserRouter([
   {
     path: "ripple-list",
     element: <FluidSombreroList />,
+  },
+  {
+    path: "scroll-warp",
+    element: <ScrollWarpImages />,
   },
 ]);
 

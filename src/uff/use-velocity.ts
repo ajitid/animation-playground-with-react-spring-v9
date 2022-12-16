@@ -11,6 +11,7 @@ computes from spring config rather relying on raf
 const x = useSpringValue(0) // or `const {x} = useSpring({x: 0})` 
 const xVelocity = useVelocity(x)
 const xAcceleration = useVelocity(xVelocity)
+// or anything I guess https://qr.ae/prIsxa https://en.wikipedia.org/wiki/Jerk_(physics)
 ```
 
 @see
