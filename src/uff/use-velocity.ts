@@ -23,48 +23,38 @@ https://www.framer.com/docs/use-velocity/#:~:text=(x)-,const%20xAcceleration%20%
 import { useEffect } from "react";
 import { useSpringValue } from "@react-spring/web";
 import type { FrameValue } from "@react-spring/web";
-import { addFluidObserver, removeFluidObserver, raf } from "@react-spring/shared";
+import { addFluidObserver, removeFluidObserver } from "@react-spring/shared";
+
+import { useRafInfo } from "./use-raf-info";
 
 export const useVelocity = <T>(springValue: FrameValue<T>) => {
+  const rafInfo = useRafInfo();
+
   const velocity = useSpringValue<number>(0);
 
   useEffect(() => {
     let previousValue = springValue.get();
-    let previousTime = Math.round(raf.now());
 
     const updateVelocity = (ev: FrameValue.Event<T>) => {
+      if (ev.type !== "change" && ev.type !== "idle") return;
+
       const value = springValue.get();
-      const time = Math.round(raf.now());
 
-      switch (ev.type) {
-        case "change": {
-          if (typeof value !== "number" || typeof previousValue !== "number") {
-            previousValue = value;
-            previousTime = time;
-            velocity.set(0);
-            break;
-          }
-
-          let newVelocity = (value - previousValue) / (time - previousTime);
-          previousValue = value;
-          previousTime = time;
-          // These cases should never happen but just in case:
-          // - Checking w/ Infinity in case time difference equated to zero
-          // - Checking w/ NaN in case one of the value is undefined
-          if (Math.abs(newVelocity) === Infinity || isNaN(newVelocity)) {
-            newVelocity = 0;
-          }
-          velocity.set(newVelocity * 1000); // ×1000 to get velocity per second
-          break;
-        }
-        case "idle":
-        case "priority":
-          break;
-        default: {
-          // type exhaustion
-          const _: never = ev;
-        }
+      if (typeof value !== "number" || typeof previousValue !== "number") {
+        previousValue = value;
+        velocity.set(0);
+        return;
       }
+
+      let newVelocity = (value - previousValue) / rafInfo.timeDelta;
+      previousValue = value;
+      // These cases should never happen but just in case:
+      // - Checking w/ Infinity in case time difference equated to zero
+      // - Checking w/ NaN in case one of the value is undefined
+      if (Math.abs(newVelocity) === Infinity || isNaN(newVelocity)) {
+        newVelocity = 0;
+      }
+      velocity.set(newVelocity * 1000); // ×1000 to get velocity per second
     };
 
     addFluidObserver(springValue, updateVelocity);
