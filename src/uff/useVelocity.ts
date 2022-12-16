@@ -36,12 +36,6 @@ export const useVelocity = <T>(springValue: FrameValue<T>) => {
       const time = Math.round(raf.now());
 
       switch (ev.type) {
-        case "idle": {
-          previousValue = value;
-          previousTime = time;
-          velocity.set(0);
-          break;
-        }
         case "change": {
           if (typeof value !== "number" || typeof previousValue !== "number") {
             previousValue = value;
@@ -62,9 +56,9 @@ export const useVelocity = <T>(springValue: FrameValue<T>) => {
           velocity.set(newVelocity * 1000); // ×1000 to get velocity per second
           break;
         }
-        case "priority": {
+        case "idle":
+        case "priority":
           break;
-        }
         default: {
           // type exhaustion
           const _: never = ev;
