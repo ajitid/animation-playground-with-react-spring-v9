@@ -19,10 +19,10 @@ export const useBulletTime = () => {
       label: "bullet time",
       value: 1,
       min: 1,
-      max: 15,
-      step: 1, // or 0.5
+      max: 5,
+      step: 1,
       onChange(v: number) {
-        raf.now = () => Date.now() / v;
+        raf.now = () => orig() / 10 ** (v - 1);
       },
     },
   });
