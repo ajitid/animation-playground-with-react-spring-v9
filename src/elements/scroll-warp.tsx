@@ -1,9 +1,10 @@
 // ref. https://twitter.com/austin_malerba/status/1539985492652990464
 // and https://twitter.com/austin_malerba/status/1598051841111371776
 
-import { useRef } from "react";
-import { a, useSpring, to, SpringValue } from "@react-spring/web";
-import { useId } from "react";
+import { useRef, useId } from "react";
+import { a, useSpring, to, useScroll } from "@react-spring/web";
+
+import { useVelocity } from "@/uff/use-velocity";
 
 const springConfig = {
   mass: 0.5,
@@ -13,16 +14,13 @@ const springConfig = {
 
 interface ScrollWarpProps extends React.HTMLProps<HTMLDivElement> {
   direction?: "x" | "y";
-  velocity: SpringValue;
 }
 
-export const ScrollWarp = ({
-  children,
-  direction = "y",
-  velocity,
-  ...otherProps
-}: ScrollWarpProps) => {
+export const ScrollWarp = ({ children, direction = "y", ...otherProps }: ScrollWarpProps) => {
   const id = useId();
+
+  const { scrollY } = useScroll();
+  const velocity = useVelocity(scrollY);
 
   /*
     We need to remember what the last scroll direction is. Otherwise we would

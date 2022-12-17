@@ -11,7 +11,6 @@ import { clamp } from "@/uff/clamp";
 export const ScrollWarpImages = () => {
   const { scrollY } = useScroll();
   const velocity = useVelocity(scrollY);
-
   const scale = velocity.to((v) => 1 - Math.abs(v) / 30).to(clamp(0.4, 1));
 
   return (
@@ -19,7 +18,7 @@ export const ScrollWarpImages = () => {
       <div>Doesn't work properly on Firefox. Use Chrome to test this.</div>
       {photos.map((photo) => (
         <a.div key={photo.id} style={{ scale }} className="flex justify-center">
-          <ScrollWarp velocity={velocity} className="w-[640px] h-[320px] block">
+          <ScrollWarp className="w-[640px] h-[320px] block">
             <img
               className="h-full w-full object-cover"
               src={`https://picsum.photos/id/${photo.id}/600/800`}
