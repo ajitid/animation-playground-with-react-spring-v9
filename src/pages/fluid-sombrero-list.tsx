@@ -132,7 +132,7 @@ const useDraggable = (items: string[]) => {
     raf(() => {
       const now = raf.now();
       if (startTime === null) {
-        // doing this is better than manually subtract framerate at `t`
+        // doing this is better than manually subtracting framerate at `t`
         // see https://twitter.com/_chenglou/status/1592801426090389505
         // and https://twitter.com/_chenglou/status/1588050903868637184
         startTime = now;

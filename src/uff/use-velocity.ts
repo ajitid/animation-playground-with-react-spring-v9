@@ -65,7 +65,10 @@ export const useVelocity = <T>(springValue: FrameValue<T>, springProps?: SpringU
       if (Math.abs(newVelocity) === Infinity || isNaN(newVelocity)) {
         newVelocity = 0;
       }
-      velocity.set(newVelocity * 1000); // ×1000 to get velocity per second
+      // we won't multiply it by ×1000 to get velocity in px per second
+      // because both react spring and react use gesture now relies on px/ms
+      // see https://github.com/pmndrs/use-gesture/issues/109#issuecomment-548288185
+      velocity.set(newVelocity);
     };
 
     addFluidObserver(springValue, updateVelocity);

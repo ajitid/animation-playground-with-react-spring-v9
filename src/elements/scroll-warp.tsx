@@ -46,9 +46,9 @@ export const ScrollWarp = ({
   });
 
   const spring = useSpring({
-    scale: velocity.to((v) => 1 + Math.abs(v) / 40000),
-    topCurve: velocity.to((v) => -v / 20000),
-    bottomCurve: velocity.to((v) => 1 - v / 20000),
+    scale: velocity.to((v) => 1 + Math.abs(v) / 40),
+    topCurve: velocity.to((v) => -v / 20),
+    bottomCurve: velocity.to((v) => 1 - v / 20),
     config: springConfig,
   });
 

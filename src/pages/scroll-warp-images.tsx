@@ -12,10 +12,10 @@ export const ScrollWarpImages = () => {
   const { scrollY } = useScroll();
   const velocity = useVelocity(scrollY);
 
-  const scale = velocity.to((v) => 1 - Math.abs(v) / 30000).to(clamp(0.4, 1));
+  const scale = velocity.to((v) => 1 - Math.abs(v) / 30).to(clamp(0.4, 1));
 
   return (
-    <DefaultLayout className="grid gap-24 justify-center py-2">
+    <DefaultLayout className="grid gap-36 justify-center py-2">
       <div>Doesn't work properly on Firefox. Use Chrome to test this.</div>
       {photos.map((photo) => (
         <a.div key={photo.id} style={{ scale }} className="flex justify-center">
