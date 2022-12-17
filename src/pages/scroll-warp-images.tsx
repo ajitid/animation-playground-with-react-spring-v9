@@ -12,13 +12,14 @@ export const ScrollWarpImages = () => {
   const { scrollY } = useScroll();
   const velocity = useVelocity(scrollY);
 
-  const scale = velocity.to((v) => 1 - Math.abs(v) / 40000).to(clamp(0.4, 1));
+  const scale = velocity.to((v) => 1 - Math.abs(v) / 30000).to(clamp(0.4, 1));
 
   return (
     <DefaultLayout className="grid gap-24 justify-center py-2">
+      <div>Doesn't work properly on Firefox. Use Chrome to test this.</div>
       {photos.map((photo) => (
-        <a.div key={photo.id} style={{ scale }}>
-          <ScrollWarp velocity={velocity} className="w-96 h-80 block">
+        <a.div key={photo.id} style={{ scale }} className="flex justify-center">
+          <ScrollWarp velocity={velocity} className="w-[640px] h-[320px] block">
             <img
               className="h-full w-full object-cover"
               src={`https://picsum.photos/id/${photo.id}/600/800`}
