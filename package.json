@@ -9,6 +9,12 @@
     "preview": "vite preview",
     "format": "prettier --write ."
   },
+  "interesting-packages": [
+    "tilg",
+    "tweakpane",
+    "leva",
+    "react-fps-stats"
+  ],
   "dependencies": {
     "@heroicons/react": "^2.0.13",
     "@react-spring/web": "^9.6.1",
