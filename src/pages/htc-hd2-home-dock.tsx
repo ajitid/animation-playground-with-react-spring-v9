@@ -7,6 +7,8 @@
 */
 
 import { useRef, useState } from "react";
+// Here's an alternative way to measure height though I think it won't be that applicable here as it rely on a key change
+// https://twitter.com/ty___ler/status/1556792623913844736
 import useMeasure from "react-use-measure";
 import { useSpring, a, easings } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
